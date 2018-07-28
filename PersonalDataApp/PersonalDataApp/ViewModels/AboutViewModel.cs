@@ -11,9 +11,13 @@ namespace PersonalDataApp.ViewModels
         {
             Title = "About";
 
+            var recorder = App.CreateAudioRecorder();
+
             OpenWebCommand = new Command(() => Device.OpenUri(new Uri("https://xamarin.com/platform")));
+            StartRecordingCommand = new Command(() => recorder.StartRecording());
         }
 
         public ICommand OpenWebCommand { get; }
+        public ICommand StartRecordingCommand { get; }
     }
 }

@@ -8,13 +8,14 @@ namespace PersonalDataApp
 {
 	public partial class App : Application
 	{
-		
-		public App ()
+
+        public static Func<IAudioRecorder> CreateAudioRecorder { get; set; }
+
+        public App ()
 		{
 			InitializeComponent();
 
-
-			MainPage = new MainPage();
+            MainPage = new MainPage();
 		}
 
 		protected override void OnStart ()

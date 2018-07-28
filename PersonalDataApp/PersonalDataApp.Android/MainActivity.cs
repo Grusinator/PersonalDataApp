@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using Plugin.CurrentActivity;
 
 namespace PersonalDataApp.Droid
 {
@@ -20,6 +21,12 @@ namespace PersonalDataApp.Droid
             base.OnCreate(bundle);
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
+
+            App.CreateAudioRecorder = () => new AudioRecorder();
+
+            // used for Plugin.Permissions 
+            CrossCurrentActivity.Current.Activity = this;
+
             LoadApplication(new App());
         }
     }
