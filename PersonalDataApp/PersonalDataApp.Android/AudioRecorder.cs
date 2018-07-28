@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using System.Numerics;
+using PersonalDataApp.Services;
 
 namespace PersonalDataApp.Droid
 {
@@ -141,34 +142,7 @@ namespace PersonalDataApp.Droid
 
         public void StartRecording()
         {
-            //SetupMediaRecorder();
-
-            Task.Run(async () => await graphqlHandler.Login("guest", "test1234"));
-
             Task.Run(async () => await ReadAudioAsync());
-
-            //RecordAudio();
-
-            //SetupAudioRecord();
-
-            //try
-            //{
-            //    mediaRecorder.Prepare();
-            //    mediaRecorder.Start();
-
-            //    if (disableButtonEnabling)
-            //    {
-            //        SetStartRecordingButtons();
-            //    }
-
-            //    audioRecord.StartRecording();
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log.Debug("DEBUG", ex.Message);
-            //}
-            //Toast.MakeText(this, "recording...", ToastLength.Short).Show();
         }
 
         public void StopRecording()

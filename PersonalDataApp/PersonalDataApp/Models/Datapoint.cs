@@ -4,7 +4,8 @@ using System.Text;
 
 namespace PersonalDataApp.Models
 {
-    class Datapoint
+    public class Datapoint
     {
+
     }
 }

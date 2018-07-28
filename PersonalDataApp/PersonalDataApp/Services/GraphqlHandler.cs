@@ -7,7 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PersonalDataApp
+namespace PersonalDataApp.Services
 {
     public class GraphqlHandler
     {
@@ -17,7 +17,7 @@ namespace PersonalDataApp
 
         public GraphqlHandler()
         {
-            graphQLClient = new GraphQLClient("http://192.168.100.102:8000/graphql/");
+            graphQLClient = new GraphQLClient("http://192.168.1.108:8000/graphql/");
         }
 
         public async Task<String> Login(string username, string password)
@@ -37,17 +37,20 @@ namespace PersonalDataApp
                     password = password
                 }
             };
-
-            var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
-
-            token = graphQLResponse.Data.tokenAuth.token.Value;
+            try
+            {
+                var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
+                token = graphQLResponse.Data.tokenAuth.token.Value;
+            }
+            catch
+            {
+                return null;
+            }
 
             if (token != null)
             {
                 graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + token);
             }
-
-            
 
             return token;
         }

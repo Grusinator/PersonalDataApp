@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Xamarin.Forms;
 
-namespace PersonalDataApp
+namespace PersonalDataApp.Services
 {
     public class AudioRecorderGeneric
     {
