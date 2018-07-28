@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalDataApp.Android", "PersonalDataApp\PersonalDataApp.Android\PersonalDataApp.Android.csproj", "{A396C0C1-1006-4D43-B92F-F05B79901945}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "PersonalDataApp", "PersonalDataApp\PersonalDataApp\PersonalDataApp.shproj", "{06E2952C-1613-45B9-9F5B-916E3589C0CA}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		PersonalDataApp\PersonalDataApp\PersonalDataApp.projitems*{06e2952c-1613-45b9-9f5b-916e3589c0ca}*SharedItemsImports = 13
+		PersonalDataApp\PersonalDataApp\PersonalDataApp.projitems*{a396c0c1-1006-4d43-b92f-f05b79901945}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A396C0C1-1006-4D43-B92F-F05B79901945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A396C0C1-1006-4D43-B92F-F05B79901945}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A396C0C1-1006-4D43-B92F-F05B79901945}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A396C0C1-1006-4D43-B92F-F05B79901945}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A396C0C1-1006-4D43-B92F-F05B79901945}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A396C0C1-1006-4D43-B92F-F05B79901945}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2364970E-A354-412A-8333-0F67ECD043A5}
+	EndGlobalSection
+EndGlobal
