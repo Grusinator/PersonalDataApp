@@ -7,6 +7,7 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Plugin.CurrentActivity;
+using Plugin.Permissions;
 
 namespace PersonalDataApp.Droid
 {
@@ -28,6 +29,13 @@ namespace PersonalDataApp.Droid
             CrossCurrentActivity.Current.Activity = this;
 
             LoadApplication(new App());
+        }
+
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
+        {
+            PermissionsImplementation.Current.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

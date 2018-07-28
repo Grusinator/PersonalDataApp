@@ -3,6 +3,7 @@ using Xamarin.Forms;
 using PersonalDataApp.Views;
 using Xamarin.Forms.Xaml;
 
+
 [assembly: XamlCompilation (XamlCompilationOptions.Compile)]
 namespace PersonalDataApp
 {
@@ -16,9 +17,8 @@ namespace PersonalDataApp
 			InitializeComponent();
 
             MainPage = new MainPage();
-		}
-
-		protected override void OnStart ()
+        }
+        protected override void OnStart ()
 		{
 			// Handle when your app starts
 		}
