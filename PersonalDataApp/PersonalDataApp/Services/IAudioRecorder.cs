@@ -9,7 +9,7 @@ namespace PersonalDataApp.Services
         void StartPlaying();
         void StopPlaying();
         void StartRecording();
-        void StopRecording();
+        string StopRecording();
 
         void SetStartPlayingButtons();
         void SetStopPlayingButtons();

@@ -5,19 +5,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PersonalDataApp.Services
 {
     public class GraphqlHandler
     {
+        private static readonly Encoding encoding = Encoding.UTF8;
+
         GraphQLClient graphQLClient { get; set; }
 
         public string token {get; set;}
 
+        static string url = "http://192.168.1.108:8000/graphql/";
+        static string userAgent = "XamarinApp";
+
         public GraphqlHandler()
         {
-            graphQLClient = new GraphQLClient("http://192.168.1.108:8000/graphql/");
+            graphQLClient = new GraphQLClient(url);
         }
 
         public async Task<String> Login(string username, string password)
@@ -57,7 +63,7 @@ namespace PersonalDataApp.Services
 
         public async Task UploadAudio()
         {
-            var uploadAudioRequest = new GraphQLRequest
+            GraphQLRequest uploadAudioRequest = new GraphQLRequest
             {
                 Query = @"
                     mutation createDatapointMutation(
@@ -101,15 +107,43 @@ namespace PersonalDataApp.Services
         }
 
 
-    }
+        public void upload2Files(string queue, dynamic variables, string file1path = "", string file2path = "")
+        {
+            string file1name = Path.GetFileName(file1path);
+            string file2name = Path.GetFileName(file2path);
+
+            Dictionary<string, Object> postParameters = new Dictionary<string, object>
+            {
+                {"operations" , "{ \"query\": " + queue + " \"," + variables.ToString()},
+                {"map", "{ \"0\": [\"variables.files.0\"], \"1\": [\"variables.files.1\"]}" },
+                { "0", new FileParameter(File.ReadAllBytes(file1path), file1name) },
+                { "1", new FileParameter(File.ReadAllBytes(file2path), file2name) }
+            };
+
+            var response = MultipartFormDataPost(url, userAgent, postParameters);
+        }
 
 
-    // Implements multipart/form-data POST in C# http://www.ietf.org/rfc/rfc2388.txt
-    // http://www.briangrinstead.com/blog/multipart-form-post-in-c
-    public static class multipartUpload
-    {
+        public bool uploadFile(string filepath)
+        {
+            string filename = Path.GetFileName(filepath);
 
-        private static readonly Encoding encoding = Encoding.UTF8;
+            Dictionary<string, Object> postParameters = new Dictionary<string, object>
+            {
+                {"operations" , "{ \"query\": \"mutation ($file: Upload!) { uploadFile(file: $file) { success } }\",\"variables\":{\"file\": null}}" },
+                {"map", "{\"0\":[\"variables.file\"]}" },
+                { "0", new FileParameter(File.ReadAllBytes(filepath), filename) }
+            };
+
+            var response = MultipartFormDataPost(url, userAgent, postParameters);
+            return true;
+        }
+
+
+        // Implements multipart/form-data POST in C# http://www.ietf.org/rfc/rfc2388.txt
+        // http://www.briangrinstead.com/blog/multipart-form-post-in-c
+
+        
         public static HttpWebResponse MultipartFormDataPost(string postUrl, string userAgent, Dictionary<string, object> postParameters)
         {
             string formDataBoundary = String.Format("----------{0:N}", Guid.NewGuid());
@@ -119,6 +153,7 @@ namespace PersonalDataApp.Services
 
             return PostForm(postUrl, userAgent, contentType, formData);
         }
+
         private static HttpWebResponse PostForm(string postUrl, string userAgent, string contentType, byte[] formData)
         {
             HttpWebRequest request = WebRequest.Create(postUrl) as HttpWebRequest;
@@ -218,8 +253,6 @@ namespace PersonalDataApp.Services
             }
         }
     }
-
-
 }
 
     /*

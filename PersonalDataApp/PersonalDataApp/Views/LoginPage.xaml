@@ -12,7 +12,6 @@
             <Entry Text="{Binding user.Username}" FontSize="Small" />
             <Label Text="Password" FontSize="Medium" />
             <Editor Text="{Binding user.Password}" FontSize="Small" Margin="0" />
-            <Label Text="{Binding user.Username}" FontSize="Medium" />
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

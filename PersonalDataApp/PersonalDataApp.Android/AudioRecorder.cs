@@ -45,14 +45,12 @@ namespace PersonalDataApp.Droid
 
         string pathSave { get; set; }
         MediaRecorder mediaRecorder;
-        MediaPlayer mediaPlayer;
         AudioRecord audioRecord;
-        Visualizer visualizer;
+        MediaPlayer mediaPlayer;
 
 
         public AudioRecorder(): base()
         {
-            //SetupMediaRecorder();
             graphqlHandler = new GraphqlHandler();
         }
 
@@ -85,54 +83,20 @@ namespace PersonalDataApp.Droid
             mediaRecorder.SetOutputFormat(OutputFormat.ThreeGpp);
             mediaRecorder.SetAudioEncoder(AudioEncoder.AmrNb);
             mediaRecorder.SetOutputFile(pathSave);
-            
-            if (disableButtonEnabling)
-            {
-                initButtons();
-            }
-            
         }
 
         public void StartPlaying()
         {
-            if (disableButtonEnabling)
-            {
-                SetStartPlayingButtons();
-            }
-
-
-            //mediaPlayer = new MediaPlayer();
-            //try
-            //{
-            //    mediaPlayer.SetDataSource(pathSave);
-            //    mediaPlayer.Prepare();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log.Debug("DEBUG", ex.Message);
-            //}
-
-            //mediaPlayer.Start();
-
             byte[] fileData = File.ReadAllBytes(wavPath);
             new Thread(delegate ()
             {
                 PlayAudioTrack(fileData);
             }).Start();
 
-
-            //Toast.MakeText(this, "playing music", ToastLength.Short).Show();
-
         }
 
         public void StopPlaying()
         {
-            if (disableButtonEnabling)
-            {
-                SetStopPlayingButtons();
-            }
-           
-
             if (mediaPlayer != null)
             {
                 mediaPlayer.Stop();
@@ -145,27 +109,10 @@ namespace PersonalDataApp.Droid
             Task.Run(async () => await ReadAudioAsync());
         }
 
-        public void StopRecording()
+        public string StopRecording()
         {
-            //mediaRecorder.Stop();
-
-            if (disableButtonEnabling)
-            {
-                SetStopRecordingButtons();
-            }
-
-            //var measurement = visualizer.GetMeasurementPeakRms(new Visualizer.MeasurementPeakRms());
-
             _is_recording = false;
-
-            //audioRecord.Stop();
-
-            Task.Run(async () => await graphqlHandler.UploadAudio());
-
-
-            //GoogleSpeechToText.Test();
-
-            //Toast.MakeText(this, "Stop Recording...", ToastLength.Short).Show();
+            return wavPath;
         }
 
         private async Task ReadAudioAsync()
@@ -188,8 +135,6 @@ namespace PersonalDataApp.Droid
                 audioBuffer.Length
             );
             var id = audioRecord.AudioSessionId;
-
-            //visualizer = new Visualizer(audioRecord.AudioSessionId);
 
             audioRecord.StartRecording();
 
@@ -239,8 +184,6 @@ namespace PersonalDataApp.Droid
                 bWriter.Close();
             }
 
-            GetAudioData();
-
             audioRecord.Stop();
             audioRecord.Dispose();
         }
@@ -257,13 +200,6 @@ namespace PersonalDataApp.Droid
                 output[index] = BitConverter.ToInt16(byteArray, i);
             }
             return output;
-        }
-
-        private void GetAudioData()
-        {
-            //visualizer = new Visualizer(audioRecord.AudioSessionId);
-            //var meas = new Visualizer.MeasurementPeakRms();
-            //int val = visualizer.GetMeasurementPeakRms(meas);
         }
 
         public double[] FFT(Int16[] sound)
@@ -316,7 +252,6 @@ namespace PersonalDataApp.Droid
 
             audioTrack.Play();
             audioTrack.Write(audBuffer, 0, audBuffer.Length);
-
         }
     }
 }

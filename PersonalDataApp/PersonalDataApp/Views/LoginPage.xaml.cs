@@ -19,14 +19,6 @@ namespace PersonalDataApp.Views
 	{
         public User user { get; set; }
 
-        public string Message
-        {
-            get { return Message; }
-            set
-            {
-                ;
-            }
-        }
 
         public LoginPage ()
 		{
@@ -37,27 +29,13 @@ namespace PersonalDataApp.Views
                 Password = "test1234"
             };
 
-            Message = "test";
-
             BindingContext = this;
         }
 
         async void Login_Clicked(object sender, EventArgs e)
         {
-            GraphqlHandler handler = new GraphqlHandler();
-            var token = await handler.Login(user.Username, user.Password);
-            //IsBusy = true;
-
-            if (token == null)
-            {
-                Message = "could not log in";
-            }
-            else
-            {
-                await Navigation.PopModalAsync();
-            }
-            //MessagingCenter.Send(this, "UserLogin", user);
-            
+            MessagingCenter.Send(this, "UserLogin", user);
+            await Navigation.PopModalAsync();
         }
     }
 }
