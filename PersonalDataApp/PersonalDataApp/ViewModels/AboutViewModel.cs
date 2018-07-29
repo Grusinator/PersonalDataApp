@@ -9,6 +9,7 @@ using PersonalDataApp.Models;
 
 using Xamarin.Forms;
 using PersonalDataApp.Services;
+using System.IO;
 
 namespace PersonalDataApp.ViewModels
 {
@@ -86,15 +87,22 @@ namespace PersonalDataApp.ViewModels
         }
         private void StopRecording()
         {
-            string path = recorder.StopRecording();
+            string filepath = recorder.StopRecording();
 
-            var result = GQLhandler.uploadFile(path);
 
-            ;
+
+            Datapoint obj = new Datapoint()
+            {
+                datetime = DateTime.Now,
+                category = "test",
+                source_device = "XamarinApp",
+            };
+
+            //var result = GQLhandler.uploadFile(filepath);
+            //var result2 = GQLhandler.upload2Files(filepath, filepath);
+
+            GQLhandler.UploadDatapoint(obj, filepath);
         }
-
-
-
 
 
         private async void RequestPermissions(List<Permission> permissions)

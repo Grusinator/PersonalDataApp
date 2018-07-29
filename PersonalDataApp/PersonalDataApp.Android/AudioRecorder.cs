@@ -40,6 +40,7 @@ namespace PersonalDataApp.Droid
         public byte[] audiobuffer;
         public string wavPath;
         public bool _is_recording;
+        public string _locked_file;
         public bool _contains_voice;
 
 
@@ -112,6 +113,7 @@ namespace PersonalDataApp.Droid
         public string StopRecording()
         {
             _is_recording = false;
+            SpinWait.SpinUntil(() => _locked_file == null);
             return wavPath;
         }
 
@@ -142,6 +144,7 @@ namespace PersonalDataApp.Droid
             int totalDataLen;
 
             _is_recording = true;
+            _locked_file = wavPath;
 
 
             using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
@@ -186,6 +189,8 @@ namespace PersonalDataApp.Droid
 
             audioRecord.Stop();
             audioRecord.Dispose();
+
+            _locked_file = null;
         }
 
         private Int16[] ByteArrayTo16Bit(byte[] byteArray)
@@ -204,8 +209,6 @@ namespace PersonalDataApp.Droid
 
         public double[] FFT(Int16[] sound)
         {
-
-
             Complex[] complexInput = new Complex[sound.Length];
             for (int i = 0; i < complexInput.Length; i++)
             {
@@ -220,8 +223,6 @@ namespace PersonalDataApp.Droid
 
         public double[] FFT(double[] sound)
         {
-            
-
             Complex[] complexInput = new Complex[sound.Length];
             for (int i = 0; i < complexInput.Length; i++)
             {
