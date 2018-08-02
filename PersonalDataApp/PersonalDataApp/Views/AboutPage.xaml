@@ -40,6 +40,10 @@
 
             <Button Margin="0,10,0,0" Text="Stop Recording" Command="{Binding StopRecordingCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" />
 
+            <Button Margin="0,10,0,0" Text="Start Playing" Command="{Binding StartPlayingCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" />
+
+            <Button Margin="0,10,0,0" Text="Stop Playing" Command="{Binding StopPlayingCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" />
+
                 <Label>
                     <Label.FormattedText>
                         <FormattedString>

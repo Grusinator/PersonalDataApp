@@ -28,6 +28,8 @@ namespace PersonalDataApp.ViewModels
 
             StartRecordingCommand = new Command(() => recorder.StartRecording());
             StopRecordingCommand = new Command(() => recorder.StopRecording());
+            StartPlayingCommand = new Command(() => recorder.StartPlaying());
+            StopPlayingCommand = new Command(() => recorder.StopPlaying());
 
         }
 
@@ -41,5 +43,7 @@ namespace PersonalDataApp.ViewModels
         public ICommand OpenWebCommand { get; }
         public ICommand StartRecordingCommand { get; }
         public ICommand StopRecordingCommand { get; }
+        public ICommand StartPlayingCommand { get; }
+        public ICommand StopPlayingCommand { get; }
     }
 }

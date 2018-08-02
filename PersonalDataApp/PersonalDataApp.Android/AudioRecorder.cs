@@ -24,16 +24,19 @@ namespace PersonalDataApp.Droid
     public class AudioRecorder : AudioRecorderGeneric, IAudioRecorder
     {
         static Android.Media.Encoding encoding = Android.Media.Encoding.Pcm16bit;
-        static ChannelIn channels = ChannelIn.Mono;
+        static ChannelIn channelIn = ChannelIn.Mono;
+        static ChannelOut channelOut = ChannelOut.Mono;
 
 
         static int minbufferSize = AudioRecord.GetMinBufferSize(
             sampleRateInHz: sampleRate, 
-            channelConfig: channels, 
+            channelConfig: channelIn, 
             audioFormat: encoding
         );
 
         static int maxAudioFreamesLength = 64000;
+
+        public List<String> AudioFileQueue { get; set; }
 
 
         public byte[] audiobuffer;
@@ -46,72 +49,49 @@ namespace PersonalDataApp.Droid
         MediaRecorder mediaRecorder;
         MediaPlayer mediaPlayer;
         AudioRecord audioRecord;
-        Visualizer visualizer;
+        AudioTrack audioTrack;
 
 
         public AudioRecorder(): base()
         {
-            //SetupMediaRecorder();
             graphqlHandler = new GraphqlHandler();
+
+            AudioFileQueue = new List<string>();
+
+            audioRecord = new AudioRecord(
+                AudioSource.Mic,
+                sampleRate,
+                channelIn,
+                encoding,
+                3 * minbufferSize);
+
+            var bufsize = audioRecord.BufferSizeInFrames / (double)sampleRate;
+
+            audiobuffer = new byte[3 * minbufferSize];
+
+            audioTrack = new AudioTrack(
+                    // Stream type
+                    Android.Media.Stream.Music,
+                    // Frequency
+                    sampleRate,
+                    // Mono or stereo
+                    channelOut,
+                    // Audio encoding
+                    encoding,
+                    // Length of the audio clip.
+                    audiobuffer.Length,
+                    // Mode. Stream or static.
+                    AudioTrackMode.Stream);
         }
 
 
         private void SetupAudioRecord()
         {
 
-            audioRecord = new AudioRecord(
-                AudioSource.Mic, 
-                sampleRate, 
-                channels, 
-                encoding,
-                3* minbufferSize);
-
-            //visualizer = new Visualizer(audioRecord.AudioSessionId);
-
-            var bufsize = audioRecord.BufferSizeInFrames/(double)sampleRate;
-
-            audiobuffer = new byte[3 * minbufferSize];
-
-        }
-
-        private void SetupMediaRecorder()
-        {
-            pathSave = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath.ToString()
-                + "/" + new Guid().ToString() + "_audio.3gp";
-
-            mediaRecorder = new MediaRecorder();
-            mediaRecorder.SetAudioSource(AudioSource.Mic);
-            mediaRecorder.SetOutputFormat(OutputFormat.ThreeGpp);
-            mediaRecorder.SetAudioEncoder(AudioEncoder.AmrNb);
-            mediaRecorder.SetOutputFile(pathSave);
-            
-            if (disableButtonEnabling)
-            {
-                initButtons();
-            }
-            
         }
 
         public void StartPlaying()
         {
-            if (disableButtonEnabling)
-            {
-                SetStartPlayingButtons();
-            }
-
-
-            //mediaPlayer = new MediaPlayer();
-            //try
-            //{
-            //    mediaPlayer.SetDataSource(pathSave);
-            //    mediaPlayer.Prepare();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log.Debug("DEBUG", ex.Message);
-            //}
-
-            //mediaPlayer.Start();
 
             byte[] fileData = File.ReadAllBytes(wavPath);
             new Thread(delegate ()
@@ -126,72 +106,25 @@ namespace PersonalDataApp.Droid
 
         public void StopPlaying()
         {
-            if (disableButtonEnabling)
+            if (audioTrack != null)
             {
-                SetStopPlayingButtons();
-            }
-           
-
-            if (mediaPlayer != null)
-            {
-                mediaPlayer.Stop();
-                mediaPlayer.Release();
+                audioTrack.Stop();
+                audioTrack.Release();
             }
         }
 
         public void StartRecording()
         {
-            //SetupMediaRecorder();
-
-            Task.Run(async () => await graphqlHandler.Login("guest", "test1234"));
-
             Task.Run(async () => await ReadAudioAsync());
-
-            //RecordAudio();
-
-            //SetupAudioRecord();
-
-            //try
-            //{
-            //    mediaRecorder.Prepare();
-            //    mediaRecorder.Start();
-
-            //    if (disableButtonEnabling)
-            //    {
-            //        SetStartRecordingButtons();
-            //    }
-
-            //    audioRecord.StartRecording();
-
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log.Debug("DEBUG", ex.Message);
-            //}
-            //Toast.MakeText(this, "recording...", ToastLength.Short).Show();
         }
 
         public void StopRecording()
         {
-            //mediaRecorder.Stop();
-
-            if (disableButtonEnabling)
-            {
-                SetStopRecordingButtons();
-            }
-
-            //var measurement = visualizer.GetMeasurementPeakRms(new Visualizer.MeasurementPeakRms());
-
             _is_recording = false;
 
-            //audioRecord.Stop();
-
-            Task.Run(async () => await graphqlHandler.UploadAudio());
-
-
-            //GoogleSpeechToText.Test();
-
-            //Toast.MakeText(this, "Stop Recording...", ToastLength.Short).Show();
+            
+            
+            //Task.Run(async () => await graphqlHandler.UploadAudio());
         }
 
         private async Task ReadAudioAsync()
@@ -207,7 +140,7 @@ namespace PersonalDataApp.Droid
                 // Frequency
                 sampleRate,
                 // Mono or stereo
-                channels,
+                channelIn,
                 // Audio encoding
                 encoding,
                 // Length of the audio clip.
@@ -265,10 +198,10 @@ namespace PersonalDataApp.Droid
                 bWriter.Close();
             }
 
-            GetAudioData();
-
             audioRecord.Stop();
             audioRecord.Dispose();
+
+
         }
 
         private Int16[] ByteArrayTo16Bit(byte[] byteArray)
@@ -283,13 +216,6 @@ namespace PersonalDataApp.Droid
                 output[index] = BitConverter.ToInt16(byteArray, i);
             }
             return output;
-        }
-
-        private void GetAudioData()
-        {
-            //visualizer = new Visualizer(audioRecord.AudioSessionId);
-            //var meas = new Visualizer.MeasurementPeakRms();
-            //int val = visualizer.GetMeasurementPeakRms(meas);
         }
 
         public double[] FFT(Int16[] sound)
@@ -326,19 +252,6 @@ namespace PersonalDataApp.Droid
 
         void PlayAudioTrack(byte[] audBuffer)
         {
-            var audioTrack = new AudioTrack(
-                // Stream type
-                Android.Media.Stream.Music,
-                // Frequency
-                sampleRate,
-                // Mono or stereo
-                ChannelOut.Mono,
-                // Audio encoding
-                encoding,
-                // Length of the audio clip.
-                audBuffer.Length,
-                // Mode. Stream or static.
-                AudioTrackMode.Stream);
 
             audioTrack.Play();
             audioTrack.Write(audBuffer, 0, audBuffer.Length);

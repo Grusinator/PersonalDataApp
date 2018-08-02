@@ -12,7 +12,7 @@ namespace PersonalDataApp
     {
         public static bool disableButtonEnabling = false;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
         public GraphqlHandler graphqlHandler;
 
@@ -28,81 +28,81 @@ namespace PersonalDataApp
 
 
 
-        void OnPropertyChanged([CallerMemberName] string name = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        //void OnPropertyChanged([CallerMemberName] string name = "")
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        //}
 
-        public bool EnableStartPlaying
-        {
-            get { return EnableStartPlaying; }
-            set
-            {
-                EnableStartPlaying = value;
-                OnPropertyChanged();
-            }
-        }
-        public bool EnableStopPlaying
-        {
-            get { return EnableStopPlaying; }
-            set
-            {
-                EnableStopPlaying = value;
-                OnPropertyChanged();
-            }
-        }
-        public bool EnableStartRecording
-        {
-            get { return EnableStartRecording; }
-            set
-            {
-                EnableStartRecording = value;
-                OnPropertyChanged();
-            }
-        }
-        public bool EnableStopRecording
-        {
-            get { return EnableStopRecording; }
-            set
-            {
-                EnableStopRecording = value;
-                OnPropertyChanged();
-            }
-        }
+        //public bool EnableStartPlaying
+        //{
+        //    get { return EnableStartPlaying; }
+        //    set
+        //    {
+        //        EnableStartPlaying = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
+        //public bool EnableStopPlaying
+        //{
+        //    get { return EnableStopPlaying; }
+        //    set
+        //    {
+        //        EnableStopPlaying = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
+        //public bool EnableStartRecording
+        //{
+        //    get { return EnableStartRecording; }
+        //    set
+        //    {
+        //        EnableStartRecording = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
+        //public bool EnableStopRecording
+        //{
+        //    get { return EnableStopRecording; }
+        //    set
+        //    {
+        //        EnableStopRecording = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
-        public void SetStartPlayingButtons()
-        {
-            EnableStopPlaying = true;
-            EnableStopRecording = false;
-            EnableStartRecording = true;
-        }
-        public void SetStopPlayingButtons()
-        {
-            EnableStartPlaying = true;
-            EnableStopPlaying = false;
-            EnableStopRecording = false;
-            EnableStartRecording = true;
-        }
-        public void SetStartRecordingButtons()
-        {
-            EnableStartPlaying = false;
-            EnableStopRecording = true;
-        }
-        public void SetStopRecordingButtons()
-        {
-            EnableStartPlaying = true;
-            EnableStopPlaying = false;
-            EnableStopRecording = false;
-            EnableStartRecording = true;
-        }
+        //public void SetStartPlayingButtons()
+        //{
+        //    EnableStopPlaying = true;
+        //    EnableStopRecording = false;
+        //    EnableStartRecording = true;
+        //}
+        //public void SetStopPlayingButtons()
+        //{
+        //    EnableStartPlaying = true;
+        //    EnableStopPlaying = false;
+        //    EnableStopRecording = false;
+        //    EnableStartRecording = true;
+        //}
+        //public void SetStartRecordingButtons()
+        //{
+        //    EnableStartPlaying = false;
+        //    EnableStopRecording = true;
+        //}
+        //public void SetStopRecordingButtons()
+        //{
+        //    EnableStartPlaying = true;
+        //    EnableStopPlaying = false;
+        //    EnableStopRecording = false;
+        //    EnableStartRecording = true;
+        //}
 
-        public void initButtons()
-        {
-            EnableStartPlaying = true;
-            EnableStopPlaying = true;
-            EnableStopRecording = true;
-            EnableStartRecording = true;
-        }
+        //public void initButtons()
+        //{
+        //    EnableStartPlaying = true;
+        //    EnableStopPlaying = true;
+        //    EnableStopRecording = true;
+        //    EnableStartRecording = true;
+        //}
 
         public void WriteWaveFileHeader(BinaryWriter bWriter, int totalAudioLen, int totalDataLen)
         {
