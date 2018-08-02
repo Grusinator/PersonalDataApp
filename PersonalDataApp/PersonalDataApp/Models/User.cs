@@ -4,7 +4,11 @@ using System.Text;
 
 namespace PersonalDataApp.Models
 {
-    class User
+    public class User
     {
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string token { get; set; }
+
     }
 }

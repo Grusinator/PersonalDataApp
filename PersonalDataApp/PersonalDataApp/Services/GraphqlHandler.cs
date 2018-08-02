@@ -5,19 +5,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
+using PersonalDataApp.Models;
 
-namespace PersonalDataApp
+namespace PersonalDataApp.Services
 {
     public class GraphqlHandler
     {
+        private static readonly Encoding encoding = Encoding.UTF8;
+
         GraphQLClient graphQLClient { get; set; }
 
         public string token {get; set;}
 
+        static string url = "http://192.168.1.108:8000/graphql/";
+        static string userAgent = "XamarinApp";
+
         public GraphqlHandler()
         {
-            graphQLClient = new GraphQLClient("http://192.168.100.102:8000/graphql/");
+            graphQLClient = new GraphQLClient(url);
         }
 
         public async Task<String> Login(string username, string password)
@@ -37,24 +44,27 @@ namespace PersonalDataApp
                     password = password
                 }
             };
-
-            var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
-
-            token = graphQLResponse.Data.tokenAuth.token.Value;
+            try
+            {
+                var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
+                token = graphQLResponse.Data.tokenAuth.token.Value;
+            }
+            catch
+            {
+                return null;
+            }
 
             if (token != null)
             {
                 graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + token);
             }
 
-            
-
             return token;
         }
 
         public async Task UploadAudio()
         {
-            var uploadAudioRequest = new GraphQLRequest
+            GraphQLRequest uploadAudioRequest = new GraphQLRequest
             {
                 Query = @"
                     mutation createDatapointMutation(
@@ -98,16 +108,130 @@ namespace PersonalDataApp
         }
 
 
-    }
+
+        public Datapoint UploadDatapoint(Datapoint obj, string filepath1 = null, string filepath2 = null)
+        {
+            string variables = serializeVariablesFromObject(obj);
+
+            string Query = @"
+                    mutation(
+	                    $datetime: DateTime, 
+	                    $category:CategoryTypes,
+	                    $source_device: String!,
+	                    $value: Float,
+	                    $text_from_audio: String,
+	                    $files: Upload
+                    ) {
+                    createDatapoint(
+		                datetime:$datetime, 
+		                category: $category,
+		                sourceDevice:$source_device,
+		                value:$value,
+		                textFromAudio:$text_from_audio,
+		                files:$files
+	                ){
+                        id
+		                category
+		                owner
+		                {
+			                username
+		                }
+                    }
+                }";
+
+            Query = "mutation testmutation($datetime:DateTime, $category:CategoryTypes, $source_device:String!, $value:Float, $text_from_audio:String, $files:Upload!) {createDatapoint(datetime:$datetime, category:$category, sourceDevice:$source_device, value:$value, textFromAudio:$text_from_audio, files:$files){ id datetime category sourceDevice }}";
+
+            //variables = "\"variables\":{\"datetime\": null,\"category\": \"test\",\"source_device\": \"insomnia\",\"value\": null, \"text_from_audio\": null,\"files\": [null, null]}";
+
+            //Query = @"mutation ($file: Upload!) { upload2Files(file: $file) { success } }";
+
+            //variables = "\"variables\":{\"files\": [null, null] }";
+
+            string jsonString = upload2FilesGeneric(Query, variables, filepath1, filepath2);
+
+            dynamic dDatapoint = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+
+            var ddp = dDatapoint.data.createDatapoint;
+
+            Datapoint datapoint = new Datapoint()
+            {
+                datetime = ddp.datetime,
+                category = ddp.category,
+                source_device = ddp.sourceDevice
+            };
+
+            return datapoint;
+        }
+
+        private string serializeVariablesFromObject(Datapoint obj, int add_files = 0)
+        {
+
+            string json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+
+            json = "\"variables\": " + json;
+            return json.Replace("}", ",\"files\": [null, null] }");
+        }
 
 
-    // Implements multipart/form-data POST in C# http://www.ietf.org/rfc/rfc2388.txt
-    // http://www.briangrinstead.com/blog/multipart-form-post-in-c
-    public static class multipartUpload
-    {
+        private string upload2FilesGeneric(string query, string variables, string filepath1 = "", string filepath2 = "")
+        {
+            string filename1 = Path.GetFileName(filepath1);
+            string filename2 = Path.GetFileName(filepath2);
 
-        private static readonly Encoding encoding = Encoding.UTF8;
-        public static HttpWebResponse MultipartFormDataPost(string postUrl, string userAgent, Dictionary<string, object> postParameters)
+            Dictionary<string, Object> postParameters = new Dictionary<string, object>
+            {
+                {"operations" , "{ \"query\": \"" + query + "\"," + variables + "}"},
+                {"map", "{ \"0\": [\"variables.files.0\"], \"1\": [\"variables.files.1\"]}" },
+                //{"map", "{\"0\":[\"variables.file\"]}" },
+                { "0", filepath1 != null ? new FileParameter(File.ReadAllBytes(filepath1), filename1) : null },
+                { "1", filepath2 != null ? new FileParameter(File.ReadAllBytes(filepath2), filename2) : null }
+            };
+
+            var response = MultipartFormDataPost(url, userAgent, postParameters);
+
+            return response.ToString();
+        }
+
+        public bool upload2Files(string filepath1 = "", string filepath2 = "")
+        {
+            string filename1 = Path.GetFileName(filepath1);
+            string filename2 = Path.GetFileName(filepath2);
+
+
+            Dictionary<string, Object> postParameters = new Dictionary<string, object>
+            {
+                {"operations" , "{ \"query\": \"mutation ($files: Upload!) { upload2Files(files: $files) { success } }\",\"variables\":{\"files\": [null, null]} }" },
+                {"map", "{ \"0\": [\"variables.files.0\"], \"1\": [\"variables.files.1\"]}" },
+                //{"map", "{\"0\":[\"variables.file\"]}" },
+                { "0", filepath1 != null ? new FileParameter(File.ReadAllBytes(filepath1), filename1) : null },
+                { "1", filepath2 != null ? new FileParameter(File.ReadAllBytes(filepath2), filename2) : null }
+            };
+
+            var response = MultipartFormDataPost(url, userAgent, postParameters);
+            return true;
+        }
+
+        public bool uploadFile(string filepath)
+        {
+            string filename = Path.GetFileName(filepath);
+
+            Dictionary<string, Object> postParameters = new Dictionary<string, object>
+            {
+                {"operations" , "{ \"query\": \"mutation ($file: Upload!) { uploadFile(file: $file) { success } }\",\"variables\":{\"file\": null} }" },
+                {"map", "{\"0\":[\"variables.file\"]}" },
+                { "0", new FileParameter(File.ReadAllBytes(filepath), filename) }
+            };
+
+            var response = MultipartFormDataPost(url, userAgent, postParameters);
+            return true;
+        }
+
+
+        // Implements multipart/form-data POST in C# http://www.ietf.org/rfc/rfc2388.txt
+        // http://www.briangrinstead.com/blog/multipart-form-post-in-c
+
+        
+        public string MultipartFormDataPost(string postUrl, string userAgent, Dictionary<string, object> postParameters)
         {
             string formDataBoundary = String.Format("----------{0:N}", Guid.NewGuid());
             string contentType = "multipart/form-data; boundary=" + formDataBoundary;
@@ -116,7 +240,8 @@ namespace PersonalDataApp
 
             return PostForm(postUrl, userAgent, contentType, formData);
         }
-        private static HttpWebResponse PostForm(string postUrl, string userAgent, string contentType, byte[] formData)
+
+        private string PostForm(string postUrl, string userAgent, string contentType, byte[] formData)
         {
             HttpWebRequest request = WebRequest.Create(postUrl) as HttpWebRequest;
 
@@ -133,9 +258,9 @@ namespace PersonalDataApp
             request.ContentLength = formData.Length;
 
             // You could add authentication here as well if needed:
-            // request.PreAuthenticate = true;
-            // request.AuthenticationLevel = System.Net.Security.AuthenticationLevel.MutualAuthRequested;
-            // request.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(System.Text.Encoding.Default.GetBytes("username" + ":" + "password")));
+            //request.PreAuthenticate = true;
+            //request.AuthenticationLevel = System.Net.Security.AuthenticationLevel.MutualAuthRequested;
+            request.Headers.Add("Authorization", "JWT " + token);
 
             // Send the form data to the request.
             using (Stream requestStream = request.GetRequestStream())
@@ -144,7 +269,13 @@ namespace PersonalDataApp
                 requestStream.Close();
             }
 
-            return request.GetResponse() as HttpWebResponse;
+            HttpWebResponse loWebResponse = (HttpWebResponse)request.GetResponse();
+
+            StreamReader loResponseStream = new StreamReader(loWebResponse.GetResponseStream(), encoding);
+
+            string lcHtml = loResponseStream.ReadToEnd();
+
+            return lcHtml;
         }
 
         private static byte[] GetMultipartFormData(Dictionary<string, object> postParameters, string boundary)
@@ -215,8 +346,6 @@ namespace PersonalDataApp
             }
         }
     }
-
-
 }
 
     /*

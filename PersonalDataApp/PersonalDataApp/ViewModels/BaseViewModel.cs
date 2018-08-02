@@ -14,12 +14,42 @@ namespace PersonalDataApp.ViewModels
     {
         public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>() ?? new MockDataStore();
 
+        
+
+
+        //bool isLoggedIn = false;
+        //public bool isLoggedIn
+        //{
+        //    get { return isLoggedIn; }
+        //    set { SetProperty(ref isLoggedIn, value); }
+        //}        //bool isLoggedIn = false;
+        //public bool isLoggedIn
+        //{
+        //    get { return isLoggedIn; }
+        //    set { SetProperty(ref isLoggedIn, value); }
+        //}
+
+
+        //public PersonalDataApp.Models.User user
+        //{
+        //    get { return user; }
+        //    set
+        //    {
+        //        if (user.token != null)
+        //        {
+        //            isLoggedIn = true;
+        //            SetProperty(ref user, value);
+        //        }
+        //    }
+        //}
+
         bool isBusy = false;
         public bool IsBusy
         {
             get { return isBusy; }
             set { SetProperty(ref isBusy, value); }
         }
+
 
         string title = string.Empty;
         public string Title

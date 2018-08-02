@@ -2,6 +2,7 @@
 using Xamarin.Forms;
 using PersonalDataApp.Views;
 using Xamarin.Forms.Xaml;
+using PersonalDataApp.Services;
 
 
 [assembly: XamlCompilation (XamlCompilationOptions.Compile)]

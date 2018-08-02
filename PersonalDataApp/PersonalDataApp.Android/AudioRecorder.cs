@@ -18,6 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using System.Numerics;
+using PersonalDataApp.Services;
 
 namespace PersonalDataApp.Droid
 {
@@ -42,12 +43,12 @@ namespace PersonalDataApp.Droid
         public byte[] audiobuffer;
         public string wavPath;
         public bool _is_recording;
+        public string _locked_file;
         public bool _contains_voice;
 
 
         string pathSave { get; set; }
         MediaRecorder mediaRecorder;
-        MediaPlayer mediaPlayer;
         AudioRecord audioRecord;
         AudioTrack audioTrack;
 
@@ -92,15 +93,11 @@ namespace PersonalDataApp.Droid
 
         public void StartPlaying()
         {
-
             byte[] fileData = File.ReadAllBytes(wavPath);
             new Thread(delegate ()
             {
                 PlayAudioTrack(fileData);
             }).Start();
-
-
-            //Toast.MakeText(this, "playing music", ToastLength.Short).Show();
 
         }
 
@@ -118,13 +115,11 @@ namespace PersonalDataApp.Droid
             Task.Run(async () => await ReadAudioAsync());
         }
 
-        public void StopRecording()
+        public string StopRecording()
         {
             _is_recording = false;
-
-            
-            
-            //Task.Run(async () => await graphqlHandler.UploadAudio());
+            SpinWait.SpinUntil(() => _locked_file == null);
+            return wavPath;
         }
 
         private async Task ReadAudioAsync()
@@ -148,14 +143,13 @@ namespace PersonalDataApp.Droid
             );
             var id = audioRecord.AudioSessionId;
 
-            //visualizer = new Visualizer(audioRecord.AudioSessionId);
-
             audioRecord.StartRecording();
 
             int totalAudioLen = 0;
             int totalDataLen;
 
             _is_recording = true;
+            _locked_file = wavPath;
 
 
             using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
@@ -201,7 +195,7 @@ namespace PersonalDataApp.Droid
             audioRecord.Stop();
             audioRecord.Dispose();
 
-
+            _locked_file = null;
         }
 
         private Int16[] ByteArrayTo16Bit(byte[] byteArray)
@@ -220,8 +214,6 @@ namespace PersonalDataApp.Droid
 
         public double[] FFT(Int16[] sound)
         {
-
-
             Complex[] complexInput = new Complex[sound.Length];
             for (int i = 0; i < complexInput.Length; i++)
             {
@@ -236,8 +228,6 @@ namespace PersonalDataApp.Droid
 
         public double[] FFT(double[] sound)
         {
-            
-
             Complex[] complexInput = new Complex[sound.Length];
             for (int i = 0; i < complexInput.Length; i++)
             {
@@ -255,7 +245,6 @@ namespace PersonalDataApp.Droid
 
             audioTrack.Play();
             audioTrack.Write(audBuffer, 0, audBuffer.Length);
-
         }
     }
 }

@@ -4,7 +4,12 @@ using System.Text;
 
 namespace PersonalDataApp.Models
 {
-    class Datapoint
+    public class Datapoint
     {
+        public DateTime datetime { get; set; }
+        public string category { get; set; }
+        public string source_device { get; set; }
+        public double value { get; set; }
+        public string text_from_audio { get; set; }
     }
 }

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PersonalDataApp
+namespace PersonalDataApp.Services
 {
     public interface IAudioRecorder
     {
         void StartPlaying();
         void StopPlaying();
         void StartRecording();
-        void StopRecording();
+        string StopRecording();
 
         void SetStartPlayingButtons();
         void SetStopPlayingButtons();
