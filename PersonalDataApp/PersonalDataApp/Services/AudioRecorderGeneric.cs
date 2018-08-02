@@ -10,7 +10,7 @@ namespace PersonalDataApp.Services
 {
     public class AudioRecorderGeneric
     {
-        public static bool disableButtonEnabling = false;
+        //public static bool disableButtonEnabling = false;
 
         //public event PropertyChangedEventHandler PropertyChanged;
 

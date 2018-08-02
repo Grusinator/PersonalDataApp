@@ -10,10 +10,5 @@ namespace PersonalDataApp.Services
         void StopPlaying();
         void StartRecording();
         string StopRecording();
-
-        void SetStartPlayingButtons();
-        void SetStopPlayingButtons();
-        void SetStartRecordingButtons();
-        void SetStopRecordingButtons();
     }
 }

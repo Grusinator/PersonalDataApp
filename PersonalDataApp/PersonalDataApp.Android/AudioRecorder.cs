@@ -55,40 +55,7 @@ namespace PersonalDataApp.Droid
 
         public AudioRecorder(): base()
         {
-            graphqlHandler = new GraphqlHandler();
-
             AudioFileQueue = new List<string>();
-
-            audioRecord = new AudioRecord(
-                AudioSource.Mic,
-                sampleRate,
-                channelIn,
-                encoding,
-                3 * minbufferSize);
-
-            var bufsize = audioRecord.BufferSizeInFrames / (double)sampleRate;
-
-            audiobuffer = new byte[3 * minbufferSize];
-
-            audioTrack = new AudioTrack(
-                    // Stream type
-                    Android.Media.Stream.Music,
-                    // Frequency
-                    sampleRate,
-                    // Mono or stereo
-                    channelOut,
-                    // Audio encoding
-                    encoding,
-                    // Length of the audio clip.
-                    audiobuffer.Length,
-                    // Mode. Stream or static.
-                    AudioTrackMode.Stream);
-        }
-
-
-        private void SetupAudioRecord()
-        {
-
         }
 
         public void StartPlaying()
@@ -112,17 +79,20 @@ namespace PersonalDataApp.Droid
 
         public void StartRecording()
         {
-            Task.Run(async () => await ReadAudioAsync());
+            Task.Run(async () => await RecordAudioAsync());
         }
 
         public string StopRecording()
         {
-            _is_recording = false;
-            SpinWait.SpinUntil(() => _locked_file == null);
+            if (_is_recording == true)
+            {
+                _is_recording = false;
+                SpinWait.SpinUntil(() => _locked_file == null);
+            }
             return wavPath;
         }
 
-        private async Task ReadAudioAsync()
+        private async Task RecordAudioAsync()
         {
             wavPath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath.ToString()
                 + "/" + new Guid().ToString() + "_audio.wav";
@@ -130,17 +100,13 @@ namespace PersonalDataApp.Droid
             byte[] audioBuffer = new byte[8000];
 
             audioRecord = new AudioRecord(
-                // Hardware source of recording.
-                AudioSource.Mic,
-                // Frequency
-                sampleRate,
-                // Mono or stereo
-                channelIn,
-                // Audio encoding
-                encoding,
-                // Length of the audio clip.
-                audioBuffer.Length
+                AudioSource.Mic,// Hardware source of recording.
+                sampleRate,// Frequency
+                channelIn,// Mono or stereo
+                encoding,// Audio encoding
+                audioBuffer.Length// Length of the audio clip.
             );
+
             var id = audioRecord.AudioSessionId;
 
             audioRecord.StartRecording();
@@ -178,6 +144,8 @@ namespace PersonalDataApp.Droid
                     var fft = FFT(intbuffer);
                 }
 
+                _is_recording = false;
+
                 //correction for the header, im not sure why 36 - would have expected 44
                 totalDataLen = totalAudioLen + 36;
 
@@ -195,7 +163,11 @@ namespace PersonalDataApp.Droid
             audioRecord.Stop();
             audioRecord.Dispose();
 
+            
             _locked_file = null;
+
+            //this file is now fully written and can be sent to server for analysis
+            AudioFileQueue.Add(wavPath);
         }
 
         private Int16[] ByteArrayTo16Bit(byte[] byteArray)
@@ -242,6 +214,14 @@ namespace PersonalDataApp.Droid
 
         void PlayAudioTrack(byte[] audBuffer)
         {
+            audioTrack = new AudioTrack(
+                Android.Media.Stream.Music,// Stream type
+                sampleRate,// Frequency
+                channelOut,// Mono or stereo
+                encoding,// Audio encoding
+                audBuffer.Length,// Length of the audio clip.
+                AudioTrackMode.Stream// Mode. Stream or static.
+            );
 
             audioTrack.Play();
             audioTrack.Write(audBuffer, 0, audBuffer.Length);

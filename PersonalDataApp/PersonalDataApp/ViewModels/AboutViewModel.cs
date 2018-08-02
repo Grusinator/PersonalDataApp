@@ -19,7 +19,13 @@ namespace PersonalDataApp.ViewModels
 
         GraphqlHandler GQLhandler = new GraphqlHandler();
 
-        private IAudioRecorder recorder { get; set; } 
+        private IAudioRecorder recorder { get; set; }
+
+        public ICommand OpenWebCommand { get; }
+        public ICommand StartRecordingCommand { get; }
+        public ICommand StopRecordingCommand { get; }
+        public ICommand StartPlayingCommand { get; }
+        public ICommand StopPlayingCommand { get; }
 
         string userAction = string.Empty;
         public string UserAction
@@ -58,7 +64,9 @@ namespace PersonalDataApp.ViewModels
             ));
 
             StartRecordingCommand = new Command(() => StartRecording());
-            StopRecordingCommand = new Command(() =>  StopRecording());
+            StopRecordingCommand = new Command(() => StopRecording());
+            StartPlayingCommand = new Command(() => recorder.StartPlaying());
+            StopPlayingCommand = new Command(() => recorder.StopPlaying());
 
             MessagingCenter.Subscribe<LoginPage, User>(this, "UserLogin", async (obj, user) =>
             {
@@ -89,8 +97,6 @@ namespace PersonalDataApp.ViewModels
         {
             string filepath = recorder.StopRecording();
 
-
-
             Datapoint obj = new Datapoint()
             {
                 datetime = DateTime.Now,
@@ -100,12 +106,8 @@ namespace PersonalDataApp.ViewModels
 
             //var result = GQLhandler.uploadFile(filepath);
             //var result2 = GQLhandler.upload2Files(filepath, filepath);
-            StartRecordingCommand = new Command(() => recorder.StartRecording());
-            StopRecordingCommand = new Command(() => recorder.StopRecording());
-            StartPlayingCommand = new Command(() => recorder.StartPlaying());
-            StopPlayingCommand = new Command(() => recorder.StopPlaying());
 
-            GQLhandler.UploadDatapoint(obj, filepath);
+            //GQLhandler.UploadDatapoint(obj, filepath);
         }
 
 
@@ -115,10 +117,6 @@ namespace PersonalDataApp.ViewModels
             var requestedPermissionStatus = permissions.Select(p => requestedPermissions[p]);
         }
 
-        public ICommand OpenWebCommand { get; }
-        public ICommand StartRecordingCommand { get; }
-        public ICommand StopRecordingCommand { get; }
-        public ICommand StartPlayingCommand { get; }
-        public ICommand StopPlayingCommand { get; }
+ 
     }
 }
