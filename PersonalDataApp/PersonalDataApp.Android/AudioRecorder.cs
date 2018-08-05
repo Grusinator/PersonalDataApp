@@ -37,6 +37,12 @@ namespace PersonalDataApp.Droid
 
         static int maxAudioFreamesLength = 64000;
 
+        static string externalDir = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath.ToString();
+
+        static string personalpath = Android.OS.Environment.DirectoryMusic;
+        static string audioDir = Path.Combine(externalDir, "PersonalData");
+
+
         public List<String> AudioFileQueue { get; set; }
 
 
@@ -48,7 +54,7 @@ namespace PersonalDataApp.Droid
 
 
         string pathSave { get; set; }
-        MediaRecorder mediaRecorder;
+
         AudioRecord audioRecord;
         AudioTrack audioTrack;
 
@@ -56,6 +62,10 @@ namespace PersonalDataApp.Droid
         public AudioRecorder(): base()
         {
             AudioFileQueue = new List<string>();
+            if (!Directory.Exists(audioDir))
+            {
+                Directory.CreateDirectory(audioDir);
+            }
         }
 
         public void StartPlaying()
@@ -92,12 +102,16 @@ namespace PersonalDataApp.Droid
             return wavPath;
         }
 
-        private async Task RecordAudioAsync()
+
+        private async Task RecordAudiocontinuousAsync()
         {
+
             wavPath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath.ToString()
-                + "/" + new Guid().ToString() + "_audio.wav";
+              + "/" + new Guid().ToString() + "_audio.wav";
 
             byte[] audioBuffer = new byte[8000];
+
+            byte[] preAudioBuffer = new byte[8000];
 
             audioRecord = new AudioRecord(
                 AudioSource.Mic,// Hardware source of recording.
@@ -122,10 +136,81 @@ namespace PersonalDataApp.Droid
             using (BinaryWriter bWriter = new BinaryWriter(outputStream))
             {
                 //init a header with no length - it will be added later
-                WriteWaveFileHeader(
-                    bWriter,
-                    0,
-                    0);
+                WriteWaveFileHeader(bWriter, maxAudioFreamesLength);
+
+                /// Keep reading the buffer while there is audio input.
+                while (_is_recording && totalAudioLen <= maxAudioFreamesLength)
+                {
+                    totalAudioLen += await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
+                    
+
+                    //analysis
+                    var intbuffer = ByteArrayTo16Bit(audioBuffer);
+                    var min = intbuffer.Min();
+                    var max = intbuffer.Max();
+                    var avg = intbuffer.Average(x => (double)x);
+                    var sos = intbuffer.Select(x => (long)x)
+                        .Aggregate((prev, next) => prev + next * next);
+                    var rms = Math.Sqrt((double)1 / intbuffer.Length * sos);
+                    var fft = FFT(intbuffer);
+
+                    //if voice has been detected, write to 
+                    if (rms > 0.1)
+                    {
+                        bWriter.Write(preAudioBuffer);
+                        bWriter.Write(audioBuffer);
+                    }
+                }
+
+                _is_recording = false;
+
+                //update header length
+                //WriteWaveFileHeader(bWriter, totalAudioLen);
+
+                //write lenght to header
+                outputStream.Close();
+                bWriter.Close();
+            }
+
+            audioRecord.Stop();
+            audioRecord.Dispose();
+
+
+            _locked_file = null;
+
+            //this file is now fully written and can be sent to server for analysis
+            AudioFileQueue.Add(wavPath);
+        }
+
+        private async Task RecordAudioAsync()
+        {
+            wavPath =  Path.Combine(audioDir, new Guid().ToString() + "_audio.wav");
+
+            byte[] audioBuffer = new byte[8000];
+
+            audioRecord = new AudioRecord(
+                AudioSource.Mic,// Hardware source of recording.
+                sampleRate,// Frequency
+                channelIn,// Mono or stereo
+                encoding,// Audio encoding
+                audioBuffer.Length// Length of the audio clip.
+            );
+
+            var id = audioRecord.AudioSessionId;
+
+            audioRecord.StartRecording();
+
+            int totalAudioLen = 0;
+
+            _is_recording = true;
+            _locked_file = wavPath;
+
+
+            using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
+            using (BinaryWriter bWriter = new BinaryWriter(outputStream))
+            {
+                //init a header with no length - it will be added later
+                WriteWaveFileHeader(bWriter, maxAudioFreamesLength);
 
                 /// Keep reading the buffer while there is audio input.
                 while (_is_recording && totalAudioLen <= maxAudioFreamesLength)
@@ -146,14 +231,8 @@ namespace PersonalDataApp.Droid
 
                 _is_recording = false;
 
-                //correction for the header, im not sure why 36 - would have expected 44
-                totalDataLen = totalAudioLen + 36;
-
                 //update header length
-                WriteWaveFileHeader(
-                    bWriter,
-                    totalAudioLen,
-                    totalDataLen);
+                //WriteWaveFileHeader(bWriter, totalAudioLen);
 
                 //write lenght to header
                 outputStream.Close();
