@@ -12,6 +12,8 @@
                 </OnPlatform>
             </ToolbarItem.Icon>
         </ToolbarItem>
+        <ToolbarItem Text="Signup" Clicked="SignupUser_Clicked">
+        </ToolbarItem>
     </ContentPage.ToolbarItems>
     <ContentPage.BindingContext>
         <vm:AboutViewModel />

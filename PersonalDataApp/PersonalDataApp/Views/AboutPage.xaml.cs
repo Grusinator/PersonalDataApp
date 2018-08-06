@@ -17,5 +17,10 @@ namespace PersonalDataApp.Views
         {
             await Navigation.PushModalAsync(new NavigationPage(new LoginPage()));
         }
+
+        async void SignupUser_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushModalAsync(new NavigationPage(new SignupPage()));
+        }
     }
 }

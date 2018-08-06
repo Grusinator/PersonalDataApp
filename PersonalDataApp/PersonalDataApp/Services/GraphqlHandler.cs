@@ -27,6 +27,43 @@ namespace PersonalDataApp.Services
             graphQLClient = new GraphQLClient(url);
         }
 
+        public async Task<String> Signup(string username, string password, string email)
+        {
+            var uploadAudioRequest = new GraphQLRequest
+            {
+                Query = @"
+                mutation CreateUserMutation($username: String!, $password: String!, $email: String!) {
+                    createUser(username: $username, password: $password, email: $email){
+		                user{
+			                username
+			                password
+			                email
+		                }
+	                }
+                }",
+                OperationName = "SignupMutation",
+                Variables = new
+                {
+                    username = username,
+                    password = password,
+                    email = email
+                }
+            };
+            try
+            {
+                var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
+                if (username == graphQLResponse.Data.createUser.user.username.Value)
+                {
+                    return username;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+            return null;
+        }
+
         public async Task<String> Login(string username, string password)
         {
             var uploadAudioRequest = new GraphQLRequest

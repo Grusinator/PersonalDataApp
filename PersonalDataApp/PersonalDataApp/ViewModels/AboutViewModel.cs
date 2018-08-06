@@ -42,7 +42,7 @@ namespace PersonalDataApp.ViewModels
             get { return user; }
             set
             {
-                if (user.token != null)
+                if (user.Token != null)
                 {
                     user = value;
                     SetProperty(ref user, value);
@@ -118,8 +118,8 @@ namespace PersonalDataApp.ViewModels
                 var _user = user as User;
 
                 IsBusy = true;
-                _user.token = await GQLhandler.Login(user.Username, user.Password);
-                if (_user.token != null)
+                _user.Token = await GQLhandler.Login(user.Username, user.Password);
+                if (_user.Token != null)
                 {
                     user = _user;
                     IsBusy = false;
@@ -129,6 +129,29 @@ namespace PersonalDataApp.ViewModels
                 else
                 {
                     UserAction = "failed";
+                }
+            });
+
+            MessagingCenter.Subscribe<SignupPage, User>(this, "UserSignup", async (obj, user) =>
+            {
+                var _user = user as User;
+
+                IsBusy = true;
+                _user.Username = await GQLhandler.Signup(user.Username, user.Password, user.Email);
+                if (_user.Username != null)
+                {
+                    _user.Token = await GQLhandler.Login(user.Username, user.Password);
+                }
+                if (_user.Token != null)
+                {
+                    user = _user;
+                    IsBusy = false;
+                    UserAction = "Logout";
+                    UpdateGuiReadyForRecording();
+                }
+                else
+                {
+                    UserAction = "Failed";
                 }
             });
         }
@@ -143,7 +166,6 @@ namespace PersonalDataApp.ViewModels
         {
             UpdateGuiRecording();
             recorder.StartRecording();
-
         }
         private void StopRecording()
         {
@@ -153,7 +175,7 @@ namespace PersonalDataApp.ViewModels
             Datapoint obj = new Datapoint()
             {
                 datetime = DateTime.Now,
-                category = "test",
+                category = "speach",
                 source_device = "XamarinApp",
             };
 

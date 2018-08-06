@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PersonalDataApp.Views.UseraccountPage"
+             Title="Account">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Update" Clicked="UpdateUserAccountInfo_Clicked" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ScrollView Grid.Row="1">
+                <StackLayout Spacing="20" Padding="15">
+                    <Label Text="Username" FontSize="Medium" />
+                    <Entry Text="{Binding user.Username}" FontSize="Small" />
+                    <Label Text="Password" FontSize="Medium" />
+                    <Editor Text="{Binding user.Password}" FontSize="Small" Margin="0" />
+                    <Label Text="Email" FontSize="Medium" />
+                    <Editor Text="{Binding user.Email}" FontSize="Small" Margin="0" />
+                    <Label Text="name" FontSize="Medium" />
+                    <Editor Text="{Binding user.Name}" FontSize="Small" Margin="0" />
+                    <Label Text="Language" FontSize="Medium" />
+                    <Editor Text="{Binding user.Language}" FontSize="Small" Margin="0" />
+                    <Label Text="Birthdate" FontSize="Medium" />
+                    <Editor Text="{Binding user.Birthdate}" FontSize="Small" Margin="0" />
+                </StackLayout>
+            </ScrollView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
