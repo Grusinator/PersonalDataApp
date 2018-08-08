@@ -10,20 +10,24 @@ using PersonalDataApp.Models;
 using Xamarin.Forms;
 using PersonalDataApp.Services;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PersonalDataApp.ViewModels
 {
     public class AboutViewModel : BaseViewModel
     {
-        
-
         GraphqlHandler GQLhandler = new GraphqlHandler();
+
+        private bool keepUploading;
 
         private List<Tuple<Datapoint, String>> GQLQueue = new List<Tuple<Datapoint, string>>();
 
-        private IAudioRecorder recorder { get; set; }
+        public IAudioRecorder recorder { get; set; }
 
         public ICommand OpenWebCommand { get; }
+        public ICommand TestCommand { get; }
+        public ICommand StartRecordingContinouslyCommand { get; }
         public ICommand StartRecordingCommand { get; }
         public ICommand StopRecordingCommand { get; }
         public ICommand StartPlayingCommand { get; }
@@ -35,6 +39,8 @@ namespace PersonalDataApp.ViewModels
             get { return userAction; }
             set { SetProperty(ref userAction, value); }
         }
+
+        
 
         User user = new User();
         public User User
@@ -55,6 +61,13 @@ namespace PersonalDataApp.ViewModels
         {
             get { return textFromAudio; }
             set { SetProperty(ref textFromAudio, value); }
+        }
+
+        bool enableStartRecordContinously = false;
+        public bool EnableStartRecordContinously
+        {
+            get { return enableStartRecordContinously; }
+            set { SetProperty(ref enableStartRecordContinously, value); }
         }
 
         bool enableStartRecord = false;
@@ -86,13 +99,41 @@ namespace PersonalDataApp.ViewModels
         }
 
 
+        bool isRecording = false;
+        public bool IsRecording
+        {
+            get { return isRecording; }
+            set { SetProperty(ref isRecording, value); }
+        }
+
+        string indicatorColor = "GREEN";
+        public string IndicatorColor
+        {
+            get { return indicatorColor; }
+            set { SetProperty(ref indicatorColor, value); }
+        }
+
+        double audioValue = 0.5;
+        public double AudioValue
+        {
+            get { return audioValue; }
+            set { SetProperty(ref audioValue, value); }
+        }
+
+
+
         public AboutViewModel()
         {
             Title = "About";
 
             UserAction = "Login";
 
+            textFromAudio = "";
+
+
             recorder = App.CreateAudioRecorder();
+
+            recorder.RecordStatusChanged += UpdateRecordStatus;
 
             RequestPermissions(
                 new List<Permission>() {
@@ -101,17 +142,22 @@ namespace PersonalDataApp.ViewModels
                 }
             );
 
-            OpenWebCommand = new Command(() => RequestPermissions(
-                new List<Permission>() {
-                    Permission.Storage,
-                    Permission.Microphone
-                }
-            ));
+            //OpenWebCommand = new Command(() => RequestPermissions(
+            //    new List<Permission>() {
+            //        Permission.Storage,
+            //        Permission.Microphone
+            //    }
+            //));
 
+            StartUploadScheduler();
+
+            TestCommand = new Command(() => {; });
+            StartRecordingContinouslyCommand = new Command(() => StartRecordingContinously());
             StartRecordingCommand = new Command(() => StartRecording());
             StopRecordingCommand = new Command(() => StopRecording());
             StartPlayingCommand = new Command(() => StartPlayback());
             StopPlayingCommand = new Command(() => StopPlayback());
+
 
             MessagingCenter.Subscribe<LoginPage, User>(this, "UserLogin", async (obj, user) =>
             {
@@ -156,10 +202,72 @@ namespace PersonalDataApp.ViewModels
             });
         }
 
+        void UpdateRecordStatus(object sender, AudioRecorderGeneric.AudioDataEventArgs e)
+        {
+            IsRecording = e.AudioData.IsRecording ?? false;
+            IndicatorColor = IsRecording ? "BLUE" : "RED";
+            AudioValue = e.AudioData.Rms/1000;
+        }
+
+        private void StartUploadScheduler()
+        {
+            keepUploading = true;
+            Task.Run(async () => {
+                    while (keepUploading)
+                    {
+                        await Task.Delay(5000);
+                        UploadAvailableData();
+                    }
+                }
+            );
+        }
+        private void StopUploadScheduler()
+        {
+            keepUploading = false;
+        }
+
+        private void UploadAvailableData()
+        {
+            var donelist = new List<Tuple<DateTime, String>>();
+
+            foreach (var elm in recorder.AudioFileQueue)
+            {
+                Datapoint obj = new Datapoint()
+                {
+                    datetime = elm.Item1.ToUniversalTime(),
+                    category = "speech_audio",
+                    source_device = "XamarinApp",
+                };
+
+                try
+                {
+                    obj = GQLhandler.UploadDatapoint(obj, filepath2: elm.Item2);
+                    TextFromAudio = obj.text_from_audio;
+                    Title = "Response";
+                }
+                catch (Exception ex)
+                {
+                    var str = ex.ToString();
+                }
+                finally
+                {
+                    donelist.Add(elm);
+                }
+                
+            }
+            donelist.ForEach(el => recorder.AudioFileQueue.Remove(el));
+        }
+
         private async void RequestPermissions(List<Permission> permissions)
         {
             var requestedPermissions = await CrossPermissions.Current.RequestPermissionsAsync(permissions.ToArray());
             var requestedPermissionStatus = permissions.Select(p => requestedPermissions[p]);
+        }
+
+        private void StartRecordingContinously()
+        {
+            UpdateGuiRecording();
+            recorder.StartRecordingContinously();
         }
 
         private void StartRecording()
@@ -170,30 +278,7 @@ namespace PersonalDataApp.ViewModels
         private void StopRecording()
         {
             UpdateGuiReadyForRecordingOrPlayback();
-            string filepath = recorder.StopRecording();
-
-            Datapoint obj = new Datapoint()
-            {
-                datetime = DateTime.Now,
-                category = "speach",
-                source_device = "XamarinApp",
-            };
-
-            //var result = GQLhandler.uploadFile(filepath);
-            //var result2 = GQLhandler.upload2Files(filepath, filepath);
-
-            IsBusy = true;
-            try
-            {
-                obj = GQLhandler.UploadDatapoint(obj, filepath2:filepath);
-                textFromAudio = obj.text_from_audio;
-            }
-            catch
-            {
-                GQLQueue.Add(new Tuple<Datapoint, string>(obj, filepath));
-            }
-            IsBusy = false;
-            
+            recorder.StopRecording();
         }
         private void StartPlayback()
         {
@@ -208,6 +293,7 @@ namespace PersonalDataApp.ViewModels
 
         private void UpdateGuiReadyForRecording()
         {
+            EnableStartRecordContinously = true;
             EnableStartPlay = false;
             EnableStopPlay = false;
             EnableStartRecord = true;
@@ -215,6 +301,7 @@ namespace PersonalDataApp.ViewModels
         }
         private void UpdateGuiRecording()
         {
+            EnableStartRecordContinously = false;
             EnableStartPlay = false;
             EnableStopPlay = false;
             EnableStartRecord = false;
@@ -222,6 +309,7 @@ namespace PersonalDataApp.ViewModels
         }
         private void UpdateGuiReadyForRecordingOrPlayback()
         {
+            EnableStartRecordContinously = true;
             EnableStartPlay = true;
             EnableStopPlay = false;
             EnableStartRecord = true;
@@ -229,6 +317,7 @@ namespace PersonalDataApp.ViewModels
         }
         private void UpdateGuiPlayback()
         {
+            EnableStartRecordContinously = false;
             EnableStartPlay = false;
             EnableStopPlay = true;
             EnableStartRecord = false;

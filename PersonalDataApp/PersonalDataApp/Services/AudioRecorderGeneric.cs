@@ -5,10 +5,13 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Xamarin.Forms;
+using System.Linq;
+using System.Numerics;
+using PersonalDataApp.Models;
 
 namespace PersonalDataApp.Services
 {
-    public class AudioRecorderGeneric
+    public class AudioRecorderGeneric 
     {
         //public static bool disableButtonEnabling = false;
 
@@ -21,88 +24,27 @@ namespace PersonalDataApp.Services
         public static long byteRate = 16 * sampleRate * Nchannels / 8;
 
 
+        public event EventHandler<AudioDataEventArgs> RecordStatusChanged;
+
         public AudioRecorderGeneric()
         {
             graphqlHandler = new GraphqlHandler();
         }
 
+        public class AudioDataEventArgs : EventArgs
+        {
+            public AudioData AudioData { get; set; }
 
+            public AudioDataEventArgs( AudioData audioData)
+            {
+                AudioData = audioData;
+            }
+        }
 
-        //void OnPropertyChanged([CallerMemberName] string name = "")
-        //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        //}
-
-        //public bool EnableStartPlaying
-        //{
-        //    get { return EnableStartPlaying; }
-        //    set
-        //    {
-        //        EnableStartPlaying = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
-        //public bool EnableStopPlaying
-        //{
-        //    get { return EnableStopPlaying; }
-        //    set
-        //    {
-        //        EnableStopPlaying = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
-        //public bool EnableStartRecording
-        //{
-        //    get { return EnableStartRecording; }
-        //    set
-        //    {
-        //        EnableStartRecording = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
-        //public bool EnableStopRecording
-        //{
-        //    get { return EnableStopRecording; }
-        //    set
-        //    {
-        //        EnableStopRecording = value;
-        //        OnPropertyChanged();
-        //    }
-        //}
-
-        //public void SetStartPlayingButtons()
-        //{
-        //    EnableStopPlaying = true;
-        //    EnableStopRecording = false;
-        //    EnableStartRecording = true;
-        //}
-        //public void SetStopPlayingButtons()
-        //{
-        //    EnableStartPlaying = true;
-        //    EnableStopPlaying = false;
-        //    EnableStopRecording = false;
-        //    EnableStartRecording = true;
-        //}
-        //public void SetStartRecordingButtons()
-        //{
-        //    EnableStartPlaying = false;
-        //    EnableStopRecording = true;
-        //}
-        //public void SetStopRecordingButtons()
-        //{
-        //    EnableStartPlaying = true;
-        //    EnableStopPlaying = false;
-        //    EnableStopRecording = false;
-        //    EnableStartRecording = true;
-        //}
-
-        //public void initButtons()
-        //{
-        //    EnableStartPlaying = true;
-        //    EnableStopPlaying = true;
-        //    EnableStopRecording = true;
-        //    EnableStartRecording = true;
-        //}
+        protected virtual void OnRecordStatusChanged(AudioDataEventArgs e)
+        {
+            RecordStatusChanged?.Invoke(this, e);
+        }
 
         private void WriteWavHeader(MemoryStream stream, bool isFloatingPoint, ushort channelCount, ushort bitDepth, int sampleRate, int totalSampleCount)
         {
@@ -209,5 +151,48 @@ namespace PersonalDataApp.Services
 
             bWriter.Write(header, 0, 44);
         }
+
+        public static Int16[] ByteArrayTo16Bit(byte[] byteArray)
+        {
+            int intlength = byteArray.Length / 2;
+
+            Int16[] output = new Int16[intlength];
+
+            for (int i = 0; i < byteArray.Length; i = i + 2)
+            {
+                var index = (int)i / 2;
+                output[index] = BitConverter.ToInt16(byteArray, i);
+            }
+            return output;
+        }
+
+        public static double[] FFT(Int16[] sound)
+        {
+            Complex[] complexInput = new Complex[sound.Length];
+            for (int i = 0; i < complexInput.Length; i++)
+            {
+                Complex tmp = new Complex(sound[i], 0);
+                complexInput[i] = tmp;
+            }
+
+            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexInput);
+
+            return complexInput.ToList().Select(x => x.Magnitude).ToArray();
+        }
+
+        public static double[] FFT(double[] sound)
+        {
+            Complex[] complexInput = new Complex[sound.Length];
+            for (int i = 0; i < complexInput.Length; i++)
+            {
+                Complex tmp = new Complex(sound[i], 0);
+                complexInput[i] = tmp;
+            }
+
+            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexInput);
+
+            return complexInput.ToList().Select(x => x.Magnitude).ToArray();
+        }
+
     }
 }

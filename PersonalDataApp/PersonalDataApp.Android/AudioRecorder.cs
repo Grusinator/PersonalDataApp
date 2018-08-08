@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 
 using System.Numerics;
 using PersonalDataApp.Services;
+using PersonalDataApp.Models;
+
 
 namespace PersonalDataApp.Droid
 {
@@ -28,6 +30,7 @@ namespace PersonalDataApp.Droid
         static ChannelIn channelIn = ChannelIn.Mono;
         static ChannelOut channelOut = ChannelOut.Mono;
 
+        //public event EventHandler<AudioDataEventArgs> RecordStatusChanged;
 
         static int minbufferSize = AudioRecord.GetMinBufferSize(
             sampleRateInHz: sampleRate, 
@@ -43,14 +46,14 @@ namespace PersonalDataApp.Droid
         static string audioDir = Path.Combine(externalDir, "PersonalData");
 
 
-        public List<String> AudioFileQueue { get; set; }
+        public List<Tuple<DateTime, String>> AudioFileQueue { get; set; }
 
+        public string status;
 
-        public byte[] audiobuffer;
         public string wavPath;
-        public bool _is_recording;
-        public string _locked_file;
-        public bool _contains_voice;
+        public bool isRecording;
+        public bool containsVoice;
+        public bool _forceStop;
 
 
         string pathSave { get; set; }
@@ -61,11 +64,16 @@ namespace PersonalDataApp.Droid
 
         public AudioRecorder(): base()
         {
-            AudioFileQueue = new List<string>();
+            AudioFileQueue = new List<Tuple<DateTime, String>>();
             if (!Directory.Exists(audioDir))
             {
                 Directory.CreateDirectory(audioDir);
             }
+        }
+
+        public List<Tuple<DateTime,String>> GetQueue()
+        {
+            return AudioFileQueue;
         }
 
         public void StartPlaying()
@@ -92,22 +100,24 @@ namespace PersonalDataApp.Droid
             Task.Run(async () => await RecordAudioAsync());
         }
 
-        public string StopRecording()
+        public void StartRecordingContinously()
         {
-            if (_is_recording == true)
+            Task.Run(async () => await RecordAudiocontinuousAsync());
+        }
+
+        public void StopRecording()
+        {
+            //if recording continously 
+            _forceStop = true;
+            if (isRecording == true)
             {
-                _is_recording = false;
-                SpinWait.SpinUntil(() => _locked_file == null);
+                isRecording = false;
             }
-            return wavPath;
         }
 
 
         private async Task RecordAudiocontinuousAsync()
         {
-
-            wavPath = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath.ToString()
-              + "/" + new Guid().ToString() + "_audio.wav";
 
             byte[] audioBuffer = new byte[8000];
 
@@ -121,70 +131,88 @@ namespace PersonalDataApp.Droid
                 audioBuffer.Length// Length of the audio clip.
             );
 
-            var id = audioRecord.AudioSessionId;
+            int totalAudioLen = 0;
+
+            _forceStop = false;
 
             audioRecord.StartRecording();
 
-            int totalAudioLen = 0;
-            int totalDataLen;
-
-            _is_recording = true;
-            _locked_file = wavPath;
-
-
-            using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
-            using (BinaryWriter bWriter = new BinaryWriter(outputStream))
+            using (MemoryStream memory = new MemoryStream())
+            using (BufferedStream stream = new BufferedStream(memory))
             {
-                //init a header with no length - it will be added later
-                WriteWaveFileHeader(bWriter, maxAudioFreamesLength);
-
-                /// Keep reading the buffer while there is audio input.
-                while (_is_recording && totalAudioLen <= maxAudioFreamesLength)
+                while (!_forceStop)
                 {
+                    //start listening
                     totalAudioLen += await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
-                    
 
                     //analysis
                     var intbuffer = ByteArrayTo16Bit(audioBuffer);
-                    var min = intbuffer.Min();
-                    var max = intbuffer.Max();
-                    var avg = intbuffer.Average(x => (double)x);
-                    var sos = intbuffer.Select(x => (long)x)
-                        .Aggregate((prev, next) => prev + next * next);
-                    var rms = Math.Sqrt((double)1 / intbuffer.Length * sos);
-                    var fft = FFT(intbuffer);
 
-                    //if voice has been detected, write to 
-                    if (rms > 0.1)
+                    var audioData = new AudioData(intbuffer, isRecording);
+
+
+                    containsVoice = audioData.IdentifyVoice();
+
+                    OnRecordStatusChanged(new AudioDataEventArgs(audioData));
+
+
+                    //if voice has been detected, start writing 
+                    if (containsVoice && !isRecording)
                     {
-                        bWriter.Write(preAudioBuffer);
-                        bWriter.Write(audioBuffer);
+                        totalAudioLen = 0;
+                        isRecording = true;
+                        stream.Write(audioBuffer, 0, audioBuffer.Length);
+
+                    }
+                    //if sound is still detected keep on recording
+                    else if (containsVoice && isRecording)
+                    {
+                        //write to buffer
+                        stream.Write(audioBuffer, 0, audioBuffer.Length);
+                    }
+                    //if sound is no longer detected, and is still recording
+                    else if (!containsVoice && isRecording)
+                    {
+                        //save to file
+                        wavPath = Path.Combine(audioDir, Guid.NewGuid().ToString() + "_audio.wav");
+
+                        using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
+                        using (BinaryWriter bWriter = new BinaryWriter(outputStream))
+                        {
+                            //write header
+                            WriteWaveFileHeader(bWriter, totalAudioLen);
+
+                            memory.WriteTo(outputStream);
+
+                            //close file
+                            outputStream.Close();
+                            bWriter.Close();
+
+                            isRecording = false;
+                        }
+
+
+                        //this file is now fully written and can be sent to server for analysis
+                        AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
+                    }
+                    else
+                    //no voice
+                    {
+                        ;
                     }
                 }
+                //break out of continously loop
 
-                _is_recording = false;
+                //TODO: handle break
 
-                //update header length
-                //WriteWaveFileHeader(bWriter, totalAudioLen);
-
-                //write lenght to header
-                outputStream.Close();
-                bWriter.Close();
+                audioRecord.Stop();
+                audioRecord.Dispose();
             }
-
-            audioRecord.Stop();
-            audioRecord.Dispose();
-
-
-            _locked_file = null;
-
-            //this file is now fully written and can be sent to server for analysis
-            AudioFileQueue.Add(wavPath);
         }
 
         private async Task RecordAudioAsync()
         {
-            wavPath =  Path.Combine(audioDir, new Guid().ToString() + "_audio.wav");
+            wavPath = Path.Combine(audioDir, Guid.NewGuid().ToString() + "_audio.wav");
 
             byte[] audioBuffer = new byte[8000];
 
@@ -202,8 +230,7 @@ namespace PersonalDataApp.Droid
 
             int totalAudioLen = 0;
 
-            _is_recording = true;
-            _locked_file = wavPath;
+            isRecording = true;
 
 
             using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
@@ -213,7 +240,7 @@ namespace PersonalDataApp.Droid
                 WriteWaveFileHeader(bWriter, maxAudioFreamesLength);
 
                 /// Keep reading the buffer while there is audio input.
-                while (_is_recording && totalAudioLen <= maxAudioFreamesLength)
+                while (isRecording && totalAudioLen <= maxAudioFreamesLength)
                 {
                     totalAudioLen += await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
                     bWriter.Write(audioBuffer);
@@ -229,7 +256,7 @@ namespace PersonalDataApp.Droid
                     var fft = FFT(intbuffer);
                 }
 
-                _is_recording = false;
+                isRecording = false;
 
                 //update header length
                 //WriteWaveFileHeader(bWriter, totalAudioLen);
@@ -242,54 +269,10 @@ namespace PersonalDataApp.Droid
             audioRecord.Stop();
             audioRecord.Dispose();
 
-            
-            _locked_file = null;
-
             //this file is now fully written and can be sent to server for analysis
-            AudioFileQueue.Add(wavPath);
+            AudioFileQueue.Add(new Tuple<DateTime, string>(DateTime.Now, wavPath));
         }
 
-        private Int16[] ByteArrayTo16Bit(byte[] byteArray)
-        {
-            int intlength = byteArray.Length/2;
-
-            Int16[] output = new Int16[intlength];
-            
-            for (int i = 0; i < byteArray.Length; i = i + 2)
-            {
-                var index = (int)i / 2;
-                output[index] = BitConverter.ToInt16(byteArray, i);
-            }
-            return output;
-        }
-
-        public double[] FFT(Int16[] sound)
-        {
-            Complex[] complexInput = new Complex[sound.Length];
-            for (int i = 0; i < complexInput.Length; i++)
-            {
-                Complex tmp = new Complex(sound[i], 0);
-                complexInput[i] = tmp;
-            }
-
-            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexInput);
-
-            return complexInput.ToList().Select(x => x.Magnitude).ToArray();
-        }
-
-        public double[] FFT(double[] sound)
-        {
-            Complex[] complexInput = new Complex[sound.Length];
-            for (int i = 0; i < complexInput.Length; i++)
-            {
-                Complex tmp = new Complex(sound[i], 0);
-                complexInput[i] = tmp;
-            }
-
-            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexInput);
-
-            return complexInput.ToList().Select(x => x.Magnitude).ToArray();
-        }
 
         void PlayAudioTrack(byte[] audBuffer)
         {
