@@ -10,7 +10,7 @@ namespace PersonalDataApp.Views
 	{
 		public MainPage ()
 		{
-			InitializeComponent ();
+			InitializeComponent();
 		}
 	}
 }

@@ -25,6 +25,7 @@ namespace PersonalDataApp.Services
 
 
         public event EventHandler<AudioDataEventArgs> RecordStatusChanged;
+        public event EventHandler<AudioUploadEventArgs> AudioReadyForUpload;
 
         public AudioRecorderGeneric()
         {
@@ -40,10 +41,26 @@ namespace PersonalDataApp.Services
                 AudioData = audioData;
             }
         }
+        public class AudioUploadEventArgs : EventArgs
+        {
+            public string Filepath{ get; set; }
+            public DateTime Datetime { get; set; }
 
+            public AudioUploadEventArgs( DateTime datetime, string filepath)
+            {
+                Filepath = filepath;
+                Datetime = datetime;
+            }
+        }
         protected virtual void OnRecordStatusChanged(AudioDataEventArgs e)
         {
             RecordStatusChanged?.Invoke(this, e);
+        }
+
+
+        protected virtual void OnAudioReadyForUpload(AudioUploadEventArgs e)
+        {
+            AudioReadyForUpload?.Invoke(this, e);
         }
 
         private void WriteWavHeader(MemoryStream stream, bool isFloatingPoint, ushort channelCount, ushort bitDepth, int sampleRate, int totalSampleCount)

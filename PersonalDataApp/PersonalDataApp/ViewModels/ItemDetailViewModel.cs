@@ -6,11 +6,11 @@ namespace PersonalDataApp.ViewModels
 {
     public class ItemDetailViewModel : BaseViewModel
     {
-        public Item Item { get; set; }
-        public ItemDetailViewModel(Item item = null)
+        public Datapoint Datapoint { get; set; }
+        public ItemDetailViewModel(Datapoint datapoint = null)
         {
-            Title = item?.Text;
-            Item = item;
+            Title = datapoint?.Category;
+            Datapoint = datapoint;
         }
     }
 }

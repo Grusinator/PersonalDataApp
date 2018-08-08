@@ -20,9 +20,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Item.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\User.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\AudioRecorderGeneric.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\DatapointDataStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\GraphqlHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IAudioRecorder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IDataStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\DatapointsMockDataStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\MockDataStore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\AboutViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\BaseViewModel.cs" />
@@ -49,12 +51,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)Views\NewItemPage.xaml.cs">
       <DependentUpon>NewItemPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Views\SignupPage.xaml.cs">
-      <DependentUpon>SignupPage.xaml</DependentUpon>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\ProfilePage.xaml.cs">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="$(MSBuildThisFileDirectory)Views\UseraccountPage.xaml.cs">
-      <DependentUpon>UseraccountPage.xaml</DependentUpon>
+    <Compile Include="$(MSBuildThisFileDirectory)Views\SignupPage.xaml.cs">
+      <DependentUpon>SignupPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -89,7 +91,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Views\UseraccountPage.xaml">
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Views\ProfilePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>

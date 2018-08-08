@@ -8,9 +8,9 @@ namespace PersonalDataApp.Views
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class AboutPage : ContentPage
 	{
-		public AboutPage ()
+		public AboutPage()
 		{
-			InitializeComponent ();
+			InitializeComponent();
 		}
 
         async void LoginUser_Clicked(object sender, EventArgs e)

@@ -24,13 +24,13 @@ namespace PersonalDataApp.Views
         {
             InitializeComponent();
 
-            var item = new Item
+            var datapoint = new Datapoint
             {
-                Text = "Item 1",
-                Description = "This is an item description."
+                Category = "Item 1",
+                TextFromAudio = "This is an item description."
             };
 
-            viewModel = new ItemDetailViewModel(item);
+            viewModel = new ItemDetailViewModel(datapoint);
             BindingContext = viewModel;
         }
     }

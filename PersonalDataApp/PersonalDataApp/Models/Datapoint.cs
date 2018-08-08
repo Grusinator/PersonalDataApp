@@ -6,10 +6,11 @@ namespace PersonalDataApp.Models
 {
     public class Datapoint
     {
-        public DateTime datetime { get; set; }
-        public string category { get; set; }
-        public string source_device { get; set; }
-        public double value { get; set; }
-        public string text_from_audio { get; set; }
+        public int Id { get; set; }
+        public DateTime Datetime { get; set; }
+        public string Category { get; set; }
+        public string SourceDevice { get; set; }
+        public double Value { get; set; }
+        public string TextFromAudio { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Net.Http;
 using System.Threading.Tasks;
 using PersonalDataApp.Models;
+using System.Linq;
 
 namespace PersonalDataApp.Services
 {
@@ -100,18 +101,20 @@ namespace PersonalDataApp.Services
             return token;
         }
 
-        public async Task<String> GetAllDatapoints()
+        public async Task<List<Datapoint>> GetAllDatapoints()
         {
             var uploadAudioRequest = new GraphQLRequest
             {
                 Query = @"
-                query AllItems{
+                query GetAllItemsQueue{
                     allDatapoints{
-                        datetime
-                        textFromAudio
+		                id
+		                datetime
+		                textFromAudio
+		                sourceDevice
                     }
                 }",
-                OperationName = "LoginMutation",
+                OperationName = "GetAllItemsQueue",
                 Variables = new
                 {
                 }
@@ -119,23 +122,31 @@ namespace PersonalDataApp.Services
             
             try
             {
+
+                await Login("guest", "test1234");
+
                 var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
-                var responselist = graphQLResponse.Data.allDatapoints;
+
+                List<Datapoint> list = new List<Datapoint>();
+                foreach (var obj in graphQLResponse.Data.allDatapoints)
+                {
+                    list.Add(
+                        new Datapoint()
+                        {
+                            Id = obj.id,
+                            Datetime = obj.datetime,
+                            TextFromAudio = obj.textFromAudio
+                        }
+                    );
+                }
+
+                return list;
             }
             catch
             {
                 return null;
             }
-            finally
-            {
-                //foreach(var elm in responselist)
-            }
-            
-
-            return null;
         }
-
-
 
         public async Task UploadAudio()
         {
@@ -229,19 +240,7 @@ namespace PersonalDataApp.Services
                 return null;
             }
 
-            dynamic dDatapoint = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
-
-            var ddp = dDatapoint.data.createDatapoint;
-
-            Datapoint datapoint = new Datapoint()
-            {
-                datetime = ddp.datetime,
-                category = ddp.category,
-                source_device = ddp.sourceDevice,
-                text_from_audio = ddp.textFromAudio
-            };
-
-            return datapoint;
+            return DeserializeDatapoint(jsonString);
         }
 
         private string serializeVariablesFromObject(Datapoint obj, int add_files = 0)
@@ -253,6 +252,22 @@ namespace PersonalDataApp.Services
             return json.Replace("}", ",\"files\": [null, null] }");
         }
 
+        private static Datapoint DeserializeDatapoint(string jsonString)
+        {
+            dynamic dDatapoint = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
+
+            var ddp = dDatapoint.data.createDatapoint;
+
+            Datapoint datapoint = new Datapoint()
+            {
+                Datetime = ddp.datetime,
+                Category = ddp.category,
+                SourceDevice = ddp.sourceDevice,
+                TextFromAudio = ddp.textFromAudio
+            };
+
+            return datapoint;
+        }
 
         private string upload2FilesGeneric(string query, string variables, string filepath1 = "", string filepath2 = "")
         {

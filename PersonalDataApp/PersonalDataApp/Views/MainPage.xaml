@@ -15,7 +15,7 @@
             </x:Arguments>
         </NavigationPage>
         
-        <NavigationPage Title="About">
+        <NavigationPage Title="Recording">
             <NavigationPage.Icon>
                 <OnPlatform x:TypeArguments="FileImageSource">
                     <On Platform="iOS" Value="tab_about.png"/>
@@ -23,6 +23,17 @@
             </NavigationPage.Icon>
             <x:Arguments>
                 <views:AboutPage />
+            </x:Arguments>
+        </NavigationPage>
+
+        <NavigationPage Title="Profile">
+            <NavigationPage.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="tab_about.png"/>
+                </OnPlatform>
+            </NavigationPage.Icon>
+            <x:Arguments>
+                <views:ProfilePage />
             </x:Arguments>
         </NavigationPage>
     </TabbedPage.Children>

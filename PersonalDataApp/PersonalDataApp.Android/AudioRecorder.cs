@@ -102,7 +102,7 @@ namespace PersonalDataApp.Droid
 
         public void StartRecordingContinously()
         {
-            Task.Run(async () => await RecordAudiocontinuousAsync());
+            Task.Run(async () => await RecordAudioContinuously());
         }
 
         public void StopRecording()
@@ -116,12 +116,12 @@ namespace PersonalDataApp.Droid
         }
 
 
-        private async Task RecordAudiocontinuousAsync()
+        private async Task RecordAudioContinuously()
         {
 
-            byte[] audioBuffer = new byte[8000];
+            byte[] audioBuffer = new byte[16000];
 
-            byte[] preAudioBuffer = new byte[8000];
+            byte[] preAudioBuffer = new byte[16000];
 
             audioRecord = new AudioRecord(
                 AudioSource.Mic,// Hardware source of recording.
@@ -161,6 +161,7 @@ namespace PersonalDataApp.Droid
                     {
                         totalAudioLen = 0;
                         isRecording = true;
+                        stream.Write(preAudioBuffer, 0, preAudioBuffer.Length);
                         stream.Write(audioBuffer, 0, audioBuffer.Length);
 
                     }
@@ -191,15 +192,22 @@ namespace PersonalDataApp.Droid
                             isRecording = false;
                         }
 
+                        //not sure if it is neccesary
+                        memory.Flush();
+                        memory.Clear(); // this one is though
+
+                        OnAudioReadyForUpload(new AudioUploadEventArgs(DateTime.Now.ToUniversalTime(), wavPath));
 
                         //this file is now fully written and can be sent to server for analysis
-                        AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
+                        //AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
                     }
                     else
                     //no voice
                     {
                         ;
                     }
+
+                    preAudioBuffer = (byte[])audioBuffer.Clone();
                 }
                 //break out of continously loop
 
@@ -209,6 +217,8 @@ namespace PersonalDataApp.Droid
                 audioRecord.Dispose();
             }
         }
+
+
 
         private async Task RecordAudioAsync()
         {
@@ -289,4 +299,16 @@ namespace PersonalDataApp.Droid
             audioTrack.Write(audBuffer, 0, audBuffer.Length);
         }
     }
+
+    public static class MemoryExtension
+    {
+        public static void Clear(this MemoryStream source)
+        {
+            byte[] buffer = source.GetBuffer();
+            Array.Clear(buffer, 0, buffer.Length);
+            source.Position = 0;
+            source.SetLength(0);
+        }
+    }
+
 }

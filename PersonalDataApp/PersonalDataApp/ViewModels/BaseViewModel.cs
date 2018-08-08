@@ -12,10 +12,9 @@ namespace PersonalDataApp.ViewModels
 {
     public class BaseViewModel : INotifyPropertyChanged
     {
-        public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>() ?? new MockDataStore();
+        public IDataStore<Datapoint> DataStore => DependencyService.Get<IDataStore<Datapoint>>() ?? new DatapointDataStore();
 
-        
-
+        public GraphqlHandler GQLhandler = new GraphqlHandler();
 
         //bool isLoggedIn = false;
         //public bool isLoggedIn

@@ -9,8 +9,8 @@ namespace PersonalDataApp.Services
         List<Tuple<DateTime, String>> AudioFileQueue { get; set; }
 
         event EventHandler<AudioRecorderGeneric.AudioDataEventArgs> RecordStatusChanged;
+        event EventHandler<AudioRecorderGeneric.AudioUploadEventArgs> AudioReadyForUpload;
 
-        
         void StartRecordingContinously();
         void StartPlaying();
         void StopPlaying();

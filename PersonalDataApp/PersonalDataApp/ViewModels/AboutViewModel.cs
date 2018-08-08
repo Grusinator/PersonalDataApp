@@ -17,8 +17,6 @@ namespace PersonalDataApp.ViewModels
 {
     public class AboutViewModel : BaseViewModel
     {
-        GraphqlHandler GQLhandler = new GraphqlHandler();
-
         private bool keepUploading;
 
         private List<Tuple<Datapoint, String>> GQLQueue = new List<Tuple<Datapoint, string>>();
@@ -40,7 +38,14 @@ namespace PersonalDataApp.ViewModels
             set { SetProperty(ref userAction, value); }
         }
 
-        
+
+        string someText = "None yet!";
+        public string SomeText
+        {
+            get { return someText; }
+            set { SetProperty(ref someText, value); }
+        }
+
 
         User user = new User();
         public User User
@@ -130,10 +135,10 @@ namespace PersonalDataApp.ViewModels
 
             textFromAudio = "";
 
-
             recorder = App.CreateAudioRecorder();
 
             recorder.RecordStatusChanged += UpdateRecordStatus;
+            recorder.AudioReadyForUpload += UploadAudioData;
 
             RequestPermissions(
                 new List<Permission>() {
@@ -149,7 +154,7 @@ namespace PersonalDataApp.ViewModels
             //    }
             //));
 
-            StartUploadScheduler();
+            //StartUploadScheduler();
 
             TestCommand = new Command(() => {; });
             StartRecordingContinouslyCommand = new Command(() => StartRecordingContinously());
@@ -202,6 +207,11 @@ namespace PersonalDataApp.ViewModels
             });
         }
 
+        private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)
+        {
+            SomeText = UploadAudioDataPoint(e.Datetime, e.Filepath);
+        }
+
         void UpdateRecordStatus(object sender, AudioRecorderGeneric.AudioDataEventArgs e)
         {
             IsRecording = e.AudioData.IsRecording ?? false;
@@ -232,30 +242,35 @@ namespace PersonalDataApp.ViewModels
 
             foreach (var elm in recorder.AudioFileQueue)
             {
-                Datapoint obj = new Datapoint()
-                {
-                    datetime = elm.Item1.ToUniversalTime(),
-                    category = "speech_audio",
-                    source_device = "XamarinApp",
-                };
-
-                try
-                {
-                    obj = GQLhandler.UploadDatapoint(obj, filepath2: elm.Item2);
-                    TextFromAudio = obj.text_from_audio;
-                    Title = "Response";
-                }
-                catch (Exception ex)
-                {
-                    var str = ex.ToString();
-                }
-                finally
+                string audiotext = UploadAudioDataPoint(elm.Item1, elm.Item2);
+                if (audiotext != null)
                 {
                     donelist.Add(elm);
                 }
-                
             }
             donelist.ForEach(el => recorder.AudioFileQueue.Remove(el));
+        }
+
+        private string UploadAudioDataPoint(DateTime datetime, string filepath)
+        {
+            Datapoint obj = new Datapoint()
+            {
+                Datetime = datetime,
+                Category = "speech_audio",
+                SourceDevice = "XamarinApp",
+            };
+
+            try
+            {
+                obj = GQLhandler.UploadDatapoint(obj, filepath2: filepath);
+                return obj.TextFromAudio;
+            }
+            catch (Exception ex)
+            {
+                var str = ex.ToString();
+            }
+
+            return null;
         }
 
         private async void RequestPermissions(List<Permission> permissions)

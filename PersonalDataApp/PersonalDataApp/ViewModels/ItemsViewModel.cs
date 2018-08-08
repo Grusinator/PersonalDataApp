@@ -12,20 +12,20 @@ namespace PersonalDataApp.ViewModels
 {
     public class ItemsViewModel : BaseViewModel
     {
-        public ObservableCollection<Item> Items { get; set; }
+        public ObservableCollection<Datapoint> Datapoints { get; set; }
         public Command LoadItemsCommand { get; set; }
 
         public ItemsViewModel()
         {
             Title = "Browse";
-            Items = new ObservableCollection<Item>();
+            Datapoints = new ObservableCollection<Datapoint>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
-            MessagingCenter.Subscribe<NewItemPage, Item>(this, "AddItem", async (obj, item) =>
+            MessagingCenter.Subscribe<NewItemPage, Datapoint>(this, "AddDatapoint", async (obj, datapoint) =>
             {
-                var _item = item as Item;
-                Items.Add(_item);
-                await DataStore.AddItemAsync(_item);
+                var _datapoint = datapoint as Datapoint;
+                Datapoints.Add(_datapoint);
+                await DataStore.AddItemAsync(_datapoint);
             });
         }
 
@@ -38,11 +38,11 @@ namespace PersonalDataApp.ViewModels
 
             try
             {
-                Items.Clear();
+                Datapoints.Clear();
                 var items = await DataStore.GetItemsAsync(true);
                 foreach (var item in items)
                 {
-                    Items.Add(item);
+                    Datapoints.Add(item);
                 }
             }
             catch (Exception ex)

@@ -11,21 +11,20 @@ using Xamarin.Forms.Xaml;
 namespace PersonalDataApp.Views
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class UseraccountPage : ContentPage
+	public partial class ProfilePage : ContentPage
 	{
         public User user { get; set; }
 
-        public UseraccountPage ()
+        public ProfilePage()
 		{
-			InitializeComponent ();
+			InitializeComponent();
 		}
 
-        async void UpdateUserAccountInfo_Clicked(object sender, EventArgs e)
+        async void UpdateProfile_Clicked(object sender, EventArgs e)
         {
-            MessagingCenter.Send(this, "UserSignup", user);
+            MessagingCenter.Send(this, "UpdateProfile", user);
             await Navigation.PopModalAsync();
         }
 
     }
-
 }

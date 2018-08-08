@@ -27,11 +27,11 @@ namespace PersonalDataApp.Views
 
         async void OnItemSelected(object sender, SelectedItemChangedEventArgs args)
         {
-            var item = args.SelectedItem as Item;
-            if (item == null)
+            var datapoint = args.SelectedItem as Datapoint;
+            if (datapoint == null)
                 return;
 
-            await Navigation.PushAsync(new ItemDetailPage(new ItemDetailViewModel(item)));
+            await Navigation.PushAsync(new ItemDetailPage(new ItemDetailViewModel(datapoint))); //change to item
 
             // Manually deselect item.
             ItemsListView.SelectedItem = null;
@@ -46,7 +46,7 @@ namespace PersonalDataApp.Views
         {
             base.OnAppearing();
 
-            if (viewModel.Items.Count == 0)
+            if (viewModel.Datapoints.Count == 0 && false)
                 viewModel.LoadItemsCommand.Execute(null);
         }
     }
