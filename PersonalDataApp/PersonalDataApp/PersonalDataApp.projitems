@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\User.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\AudioRecorderGeneric.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\DatapointDataStore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\ExtensionMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\GraphqlHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IAudioRecorder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IDataStore.cs" />

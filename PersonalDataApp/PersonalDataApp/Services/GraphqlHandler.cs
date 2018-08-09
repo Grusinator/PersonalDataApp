@@ -9,6 +9,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using PersonalDataApp.Models;
 using System.Linq;
+using JsonConvert = Newtonsoft.Json.JsonConvert;
+using Newtonsoft.Json.Serialization;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace PersonalDataApp.Services
 {
@@ -21,7 +25,7 @@ namespace PersonalDataApp.Services
         public string token {get; set;}
 
         //static string url = "http://personal-data-api.herokuapp.com/graphql/";
-        static string url = "http://192.168.10.135:8000/graphql/";
+        static string url = "http://192.168.1.106:8000/graphql/";
         static string userAgent = "XamarinApp";
 
         public GraphqlHandler()
@@ -246,13 +250,16 @@ namespace PersonalDataApp.Services
         private string serializeVariablesFromObject(Datapoint obj, int add_files = 0)
         {
 
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
+            string json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+            {
+                ContractResolver = new UnderscorePropertyNamesContractResolver()
+            });
 
-            List<System.Reflection.PropertyInfo> problist = obj.GetType().GetProperties().ToList();
+            //List<System.Reflection.PropertyInfo> problist = obj.GetType().GetProperties().ToList();
 
-            List<String> newlist = problist.Select(x => x.Name).ToList();
+            //List<String> newlist = problist.Select(x => x.Name).ToList();
 
-            newlist.ForEach(x => json.Replace(x, x.ToUnderscoreCase()));
+            //newlist.ForEach(x => json = json.Replace(x, x.ToUnderscoreCase()));
 
 
             json = "\"variables\": " + json;
@@ -289,6 +296,8 @@ namespace PersonalDataApp.Services
                 { "0", filepath1 != null ? new FileParameter(File.ReadAllBytes(filepath1), filename1) : null },
                 { "1", filepath2 != null ? new FileParameter(File.ReadAllBytes(filepath2), filename2) : null }
             };
+
+            //postParameters["1"] = new FileParameter(new byte[] { 1, 2, 3, 4, 5 });
 
             var response = MultipartFormDataPost(url, userAgent, postParameters);
 
@@ -454,11 +463,16 @@ namespace PersonalDataApp.Services
         }
 
     }
-    public static class ExtensionMethods
+
+    public class UnderscorePropertyNamesContractResolver : DefaultContractResolver
     {
-        public static string ToUnderscoreCase(this string str)
+        public UnderscorePropertyNamesContractResolver() : base()
         {
-            return string.Concat(str.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x.ToString() : x.ToString())).ToLower();
+        }
+
+        protected override string ResolvePropertyName(string propertyName)
+        {
+            return Regex.Replace(propertyName, @"(\w)([A-Z])", "$1_$2").ToLower();
         }
     }
 }

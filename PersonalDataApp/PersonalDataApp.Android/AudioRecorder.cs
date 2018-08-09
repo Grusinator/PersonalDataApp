@@ -78,12 +78,18 @@ namespace PersonalDataApp.Droid
 
         public void StartPlaying()
         {
-            byte[] fileData = File.ReadAllBytes(wavPath);
-            new Thread(delegate ()
+            try
             {
-                PlayAudioTrack(fileData);
-            }).Start();
+                byte[] fileData = File.ReadAllBytes(wavPath);
+                new Thread(delegate ()
+                {
+                    PlayAudioTrack(fileData);
+                }).Start();
+            }
+            catch
+            {
 
+            }
         }
 
         public void StopPlaying()
@@ -196,10 +202,10 @@ namespace PersonalDataApp.Droid
                         memory.Flush();
                         memory.Clear(); // this one is though
 
-                        OnAudioReadyForUpload(new AudioUploadEventArgs(DateTime.Now.ToUniversalTime(), wavPath));
+                        //OnAudioReadyForUpload(new AudioUploadEventArgs(DateTime.Now.ToUniversalTime(), wavPath));
 
                         //this file is now fully written and can be sent to server for analysis
-                        //AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
+                        AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
                     }
                     else
                     //no voice

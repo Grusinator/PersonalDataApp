@@ -140,12 +140,7 @@ namespace PersonalDataApp.ViewModels
             recorder.RecordStatusChanged += UpdateRecordStatus;
             recorder.AudioReadyForUpload += UploadAudioData;
 
-            RequestPermissions(
-                new List<Permission>() {
-                    Permission.Storage,
-                    Permission.Microphone
-                }
-            );
+            
 
             //OpenWebCommand = new Command(() => RequestPermissions(
             //    new List<Permission>() {
@@ -154,9 +149,17 @@ namespace PersonalDataApp.ViewModels
             //    }
             //));
 
-            //StartUploadScheduler();
+            StartUploadScheduler();
 
-            TestCommand = new Command(() => {; });
+            TestCommand = new Command(() => {
+                RequestPermissions(
+                    new List<Permission>() {
+                        Permission.Storage,
+                        Permission.Microphone
+                    }
+                );
+            });
+            
             StartRecordingContinouslyCommand = new Command(() => StartRecordingContinously());
             StartRecordingCommand = new Command(() => StartRecording());
             StopRecordingCommand = new Command(() => StopRecording());
@@ -256,12 +259,26 @@ namespace PersonalDataApp.ViewModels
             Datapoint obj = new Datapoint()
             {
                 //Datetime = datetime,
-                Category = null,//"speech_audio",
+                Category = "speech_audio",
                 SourceDevice = "XamarinApp",
             };
 
             try
             {
+                try
+                {   // Open the text file using a stream reader.
+                    using (StreamReader sr = new StreamReader(filepath))
+                    {
+                        // Read the stream to a string, and write the string to the console.
+                        String line = sr.ReadToEnd();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("The file could not be read:");
+                    Console.WriteLine(e.Message);
+                }
+
                 obj = GQLhandler.UploadDatapoint(obj, filepath2: filepath);
                 return obj.TextFromAudio;
             }
