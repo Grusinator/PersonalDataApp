@@ -8,7 +8,7 @@ namespace PersonalDataApp.Views
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class MainPage : TabbedPage
 	{
-		public MainPage ()
+		public MainPage()
 		{
 			InitializeComponent();
 		}

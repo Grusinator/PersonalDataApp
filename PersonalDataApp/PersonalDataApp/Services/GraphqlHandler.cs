@@ -248,6 +248,13 @@ namespace PersonalDataApp.Services
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(obj);
 
+            List<System.Reflection.PropertyInfo> problist = obj.GetType().GetProperties().ToList();
+
+            List<String> newlist = problist.Select(x => x.Name).ToList();
+
+            newlist.ForEach(x => json.Replace(x, x.ToUnderscoreCase()));
+
+
             json = "\"variables\": " + json;
             return json.Replace("}", ",\"files\": [null, null] }");
         }
@@ -444,6 +451,14 @@ namespace PersonalDataApp.Services
                 FileName = filename;
                 ContentType = contenttype;
             }
+        }
+
+    }
+    public static class ExtensionMethods
+    {
+        public static string ToUnderscoreCase(this string str)
+        {
+            return string.Concat(str.Select((x, i) => i > 0 && char.IsUpper(x) ? "_" + x.ToString() : x.ToString())).ToLower();
         }
     }
 }

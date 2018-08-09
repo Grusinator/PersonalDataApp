@@ -255,8 +255,8 @@ namespace PersonalDataApp.ViewModels
         {
             Datapoint obj = new Datapoint()
             {
-                Datetime = datetime,
-                Category = "speech_audio",
+                //Datetime = datetime,
+                Category = null,//"speech_audio",
                 SourceDevice = "XamarinApp",
             };
 
