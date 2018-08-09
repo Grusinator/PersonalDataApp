@@ -20,7 +20,7 @@ namespace PersonalDataApp.Services
         public string token {get; set;}
 
         //static string url = "http://personal-data-api.herokuapp.com/graphql/";
-        static string url = "http://192.168.10.135:8000/graphql/";
+        static string url = "http://192.168.1.105:8000/graphql/";
         static string userAgent = "XamarinApp";
 
         public GraphqlHandler()

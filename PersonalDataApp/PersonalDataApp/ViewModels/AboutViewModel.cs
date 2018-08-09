@@ -151,7 +151,14 @@ namespace PersonalDataApp.ViewModels
 
             StartUploadScheduler();
 
-            TestCommand = new Command(() => {; });
+            TestCommand = new Command(() => {
+                RequestPermissions(
+                    new List<Permission>() {
+                        Permission.Storage,
+                        Permission.Microphone
+                    }
+                );
+            });
             StartRecordingContinouslyCommand = new Command(() => StartRecordingContinously());
             StartRecordingCommand = new Command(() => StartRecording());
             StopRecordingCommand = new Command(() => StopRecording());
