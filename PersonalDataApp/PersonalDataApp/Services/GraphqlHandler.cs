@@ -152,50 +152,50 @@ namespace PersonalDataApp.Services
             }
         }
 
-        public async Task UploadAudio()
-        {
-            GraphQLRequest uploadAudioRequest = new GraphQLRequest
-            {
-                Query = @"
-                    mutation createDatapointMutation(
-	                    $datetime: DateTime, 
-	                    $category:CategoryTypes,
-	                    $source_device: String!,
-	                    $value: Float,
-	                    $text_from_audio: String,
-	                    $files: Upload
-                    ) {
-                    createDatapoint(
-		                datetime:$datetime, 
-		                category: $category,
-		                sourceDevice:$source_device,
-		                value:$value,
-		                textFromAudio:$text_from_audio,
-		                files:$files
-	                ){
-                        id
-		                category
-		                owner
-		                {
-			                username
-		                }
-                    }
-                }",
-                OperationName = "createDatapointMutation",
-                Variables = new
-                {
-                    category = "food_picture",
-                    source_device = "Android",
-                    value = 3,
-                    text_from_audio = "null"
-                }
-            };
+        //public async Task UploadAudio()
+        //{
+        //    GraphQLRequest uploadAudioRequest = new GraphQLRequest
+        //    {
+        //        Query = @"
+        //            mutation createDatapointMutation(
+	       //             $datetime: DateTime, 
+	       //             $category:CategoryTypes,
+	       //             $source_device: String!,
+	       //             $value: Float,
+	       //             $text_from_audio: String,
+	       //             $files: Upload
+        //            ) {
+        //            createDatapoint(
+		      //          datetime:$datetime, 
+		      //          category: $category,
+		      //          sourceDevice:$source_device,
+		      //          value:$value,
+		      //          textFromAudio:$text_from_audio,
+		      //          files:$files
+	       //         ){
+        //                id
+		      //          category
+		      //          owner
+		      //          {
+			     //           username
+		      //          }
+        //            }
+        //        }",
+        //        OperationName = "createDatapointMutation",
+        //        Variables = new
+        //        {
+        //            category = "food_picture",
+        //            source_device = "Android",
+        //            value = 3,
+        //            text_from_audio = "null"
+        //        }
+        //    };
 
-            var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
+        //    var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
 
-            var succeeded = graphQLResponse.Data.createDatapoint.category.Value;
+        //    var succeeded = graphQLResponse.Data.createDatapoint.category.Value;
 
-        }
+        //}
 
 
 
@@ -230,12 +230,6 @@ namespace PersonalDataApp.Services
                 }";
 
             Query = "mutation testmutation($datetime:DateTime, $category:CategoryTypes, $source_device:String!, $value:Float, $text_from_audio:String, $files:Upload!) {createDatapoint(datetime:$datetime, category:$category, sourceDevice:$source_device, value:$value, textFromAudio:$text_from_audio, files:$files){ id datetime category sourceDevice textFromAudio }}";
-
-            //variables = "\"variables\":{\"datetime\": null,\"category\": \"test\",\"source_device\": \"insomnia\",\"value\": null, \"text_from_audio\": null,\"files\": [null, null]}";
-
-            //Query = @"mutation ($file: Upload!) { upload2Files(file: $file) { success } }";
-
-            //variables = "\"variables\":{\"files\": [null, null] }";
 
             string jsonString = upload2FilesGeneric(Query, variables, filepath1, filepath2);
 
@@ -296,8 +290,6 @@ namespace PersonalDataApp.Services
                 { "0", filepath1 != null ? new FileParameter(File.ReadAllBytes(filepath1), filename1) : null },
                 { "1", filepath2 != null ? new FileParameter(File.ReadAllBytes(filepath2), filename2) : null }
             };
-
-            //postParameters["1"] = new FileParameter(new byte[] { 1, 2, 3, 4, 5 });
 
             var response = MultipartFormDataPost(url, userAgent, postParameters);
 

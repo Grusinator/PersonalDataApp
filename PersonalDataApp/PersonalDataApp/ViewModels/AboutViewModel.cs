@@ -149,7 +149,7 @@ namespace PersonalDataApp.ViewModels
             //    }
             //));
 
-            StartUploadScheduler();
+            //StartUploadScheduler();
 
             TestCommand = new Command(() => {
                 RequestPermissions(
@@ -265,20 +265,6 @@ namespace PersonalDataApp.ViewModels
 
             try
             {
-                try
-                {   // Open the text file using a stream reader.
-                    using (StreamReader sr = new StreamReader(filepath))
-                    {
-                        // Read the stream to a string, and write the string to the console.
-                        String line = sr.ReadToEnd();
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("The file could not be read:");
-                    Console.WriteLine(e.Message);
-                }
-
                 obj = GQLhandler.UploadDatapoint(obj, filepath2: filepath);
                 return obj.TextFromAudio;
             }

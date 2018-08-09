@@ -202,10 +202,10 @@ namespace PersonalDataApp.Droid
                         memory.Flush();
                         memory.Clear(); // this one is though
 
-                        //OnAudioReadyForUpload(new AudioUploadEventArgs(DateTime.Now.ToUniversalTime(), wavPath));
+                        OnAudioReadyForUpload(new AudioUploadEventArgs(DateTime.Now.ToUniversalTime(), wavPath));
 
                         //this file is now fully written and can be sent to server for analysis
-                        AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
+                        //AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
                     }
                     else
                     //no voice
@@ -273,9 +273,6 @@ namespace PersonalDataApp.Droid
                 }
 
                 isRecording = false;
-
-                //update header length
-                //WriteWaveFileHeader(bWriter, totalAudioLen);
 
                 //write lenght to header
                 outputStream.Close();
