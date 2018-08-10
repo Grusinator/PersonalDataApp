@@ -1,10 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PersonalDataApp.ViewModels"
              x:Class="PersonalDataApp.Views.ProfilePage"
              Title="Account">
+    <ContentPage.BindingContext>
+        <vm:ProfileViewModel />
+    </ContentPage.BindingContext>
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Update" Clicked="UpdateProfile_Clicked" />
+        <ToolbarItem Text="{Binding UserAction}" Clicked="ProfileIcon_Clicked">
+        </ToolbarItem>
+ 
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid>
@@ -13,19 +19,14 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <ScrollView Grid.Row="1">
-                <StackLayout Spacing="20" Padding="15">
-                    <Label Text="Username" FontSize="Medium" />
-                    <Entry Text="{Binding user.Username}" FontSize="Small" />
-                    <Label Text="Password" FontSize="Medium" />
-                    <Editor Text="{Binding user.Password}" FontSize="Small" Margin="0" />
-                    <Label Text="Email" FontSize="Medium" />
-                    <Editor Text="{Binding user.Email}" FontSize="Small" Margin="0" />
-                    <Label Text="name" FontSize="Medium" />
-                    <Editor Text="{Binding user.Name}" FontSize="Small" Margin="0" />
-                    <Label Text="Language" FontSize="Medium" />
-                    <Editor Text="{Binding user.Language}" FontSize="Small" Margin="0" />
-                    <Label Text="Birthdate" FontSize="Medium" />
-                    <Editor Text="{Binding user.Birthdate}" FontSize="Small" Margin="0" />
+                <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
+                    <Entry Text="{Binding User.Username}" Placeholder="Username"/>
+                    <Entry Text="{Binding User.Name}" Placeholder="Name"/>
+                    <Entry Text="{Binding User.Email}" Placeholder="Email" Keyboard="Email"/>
+                    <Entry Text="{Binding User.Password}" Placeholder="Password" IsPassword="True"/>
+                    <Label Text="Date Of Birth"/>
+                    <DatePicker Date="{Binding User.Birthdate}" />
+                    <Label Text="Address"/>
                 </StackLayout>
             </ScrollView>
         </Grid>

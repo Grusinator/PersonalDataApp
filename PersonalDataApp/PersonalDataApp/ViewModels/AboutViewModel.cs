@@ -47,20 +47,6 @@ namespace PersonalDataApp.ViewModels
         }
 
 
-        User user = new User();
-        public User User
-        {
-            get { return user; }
-            set
-            {
-                if (user.Token != null)
-                {
-                    user = value;
-                    SetProperty(ref user, value);
-                }
-            }
-        }
-
         string textFromAudio = string.Empty;
         public string TextFromAudio
         {
@@ -167,47 +153,52 @@ namespace PersonalDataApp.ViewModels
             StopPlayingCommand = new Command(() => StopPlayback());
 
 
-            MessagingCenter.Subscribe<LoginPage, User>(this, "UserLogin", async (obj, user) =>
-            {
-                var _user = user as User;
+            //MessagingCenter.Subscribe<LoginPage, User>(this, "LoggedInUser", (obj, user) =>
+            //{
+            //    User = user;
+            //});
 
-                IsBusy = true;
-                _user.Token = await GQLhandler.Login(user.Username, user.Password);
-                if (_user.Token != null)
-                {
-                    user = _user;
-                    IsBusy = false;
-                    UserAction = "Sign out";
-                    UpdateGuiReadyForRecording();
-                }
-                else
-                {
-                    UserAction = "failed";
-                }
-            });
+            //MessagingCenter.Subscribe<LoginPage, User>(this, "UserLogin", async (obj, user) =>
+            //{
+            //    var _user = user as User;
 
-            MessagingCenter.Subscribe<SignupPage, User>(this, "UserSignup", async (obj, user) =>
-            {
-                var _user = user as User;
+            //    IsBusy = true;
+            //    _user.Token = await GQLhandler.Login(user.Username, user.Password);
+            //    if (_user.Token != null)
+            //    {
+            //        user = _user;
+            //        IsBusy = false;
+            //        UserAction = "Sign out";
+            //        UpdateGuiReadyForRecording();
+            //    }
+            //    else
+            //    {
+            //        UserAction = "failed";
+            //    }
+            //});
 
-                IsBusy = true;
-                _user.Username = await GQLhandler.Signup(user.Username, user.Password, user.Email);
-                if (_user.Username != null)
-                {
-                    _user.Token = await GQLhandler.Login(user.Username, user.Password);
-                }
-                if (_user.Token != null)
-                {
-                    user = _user;
-                    IsBusy = false;
-                    UserAction = "Logout";
-                    UpdateGuiReadyForRecording();
-                }
-                else
-                {
-                    UserAction = "Failed";
-                }
-            });
+            //MessagingCenter.Subscribe<SignupPage, User>(this, "UserSignup", async (obj, user) =>
+            //{
+            //    var _user = user as User;
+
+            //    IsBusy = true;
+            //    _user.Username = await GQLhandler.Signup(user.Username, user.Password, user.Email);
+            //    if (_user.Username != null)
+            //    {
+            //        _user.Token = await GQLhandler.Login(user.Username, user.Password);
+            //    }
+            //    if (_user.Token != null)
+            //    {
+            //        user = _user;
+            //        IsBusy = false;
+            //        UserAction = "Logout";
+            //        UpdateGuiReadyForRecording();
+            //    }
+            //    else
+            //    {
+            //        UserAction = "Failed";
+            //    }
+            //});
         }
 
         private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)

@@ -17,7 +17,8 @@ namespace PersonalDataApp
 		{
 			InitializeComponent();
 
-            MainPage = new MainPage();
+            MainPage = new StartPage();
+            //MainPage = new MainPage();
         }
         protected override void OnStart ()
 		{

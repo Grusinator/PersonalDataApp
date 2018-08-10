@@ -25,7 +25,7 @@ namespace PersonalDataApp.Services
         public string token {get; set;}
 
         //static string url = "http://personal-data-api.herokuapp.com/graphql/";
-        static string url = "http://192.168.1.106:8000/graphql/";
+        static string url = "http://192.168.1.112:8000/graphql/";
         static string userAgent = "XamarinApp";
 
         public GraphqlHandler()
@@ -47,7 +47,7 @@ namespace PersonalDataApp.Services
 		                }
 	                }
                 }",
-                OperationName = "SignupMutation",
+                OperationName = "CreateUserMutation",
                 Variables = new
                 {
                     username = username,
@@ -58,21 +58,26 @@ namespace PersonalDataApp.Services
             try
             {
                 var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
+
+                if (graphQLResponse.Errors != null)
+                {
+                    throw new HttpRequestException(graphQLResponse.Errors[0].Message);
+                }
                 if (username == graphQLResponse.Data.createUser.user.username.Value)
                 {
                     return username;
                 }
             }
-            catch
+            catch( HttpRequestException e)
             {
-                return null;
+                throw e;
             }
             return null;
         }
 
         public async Task<String> Login(string username, string password)
         {
-            var uploadAudioRequest = new GraphQLRequest
+            var loginRequest = new GraphQLRequest
             {
                 Query = @"
                 mutation LoginMutation($username: String!, $password: String!) {
@@ -89,17 +94,23 @@ namespace PersonalDataApp.Services
             };
             try
             {
-                var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
-                token = graphQLResponse.Data.tokenAuth.token.Value;
-            }
-            catch
-            {
-                return null;
-            }
+                var graphQLResponse = await graphQLClient.PostAsync(loginRequest);
 
-            if (token != null)
+                if (graphQLResponse.Errors != null)
+                {
+                    throw new HttpRequestException(graphQLResponse.Errors[0].Message);
+                }
+
+                token = graphQLResponse.Data.tokenAuth.token.Value;
+
+                if (token != null)
+                {
+                    graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + token);
+                }
+            }
+            catch( HttpRequestException e)
             {
-                graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + token);
+                throw e;
             }
 
             return token;

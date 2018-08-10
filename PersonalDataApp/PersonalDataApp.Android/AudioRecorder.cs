@@ -183,6 +183,10 @@ namespace PersonalDataApp.Droid
                         //save to file
                         wavPath = Path.Combine(audioDir, Guid.NewGuid().ToString() + "_audio.wav");
 
+                        //Get one more segment of sound
+                        totalAudioLen += await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
+                        stream.Write(audioBuffer, 0, audioBuffer.Length);
+
                         using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
                         using (BinaryWriter bWriter = new BinaryWriter(outputStream))
                         {

@@ -4,17 +4,6 @@
              x:Class="PersonalDataApp.Views.AboutPage"
              xmlns:vm="clr-namespace:PersonalDataApp.ViewModels"
              Title="{Binding Title}">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="{Binding UserAction}" Clicked="LoginUser_Clicked">
-            <ToolbarItem.Icon>
-                <OnPlatform x:TypeArguments="FileImageSource">
-                    <On Platform="UWP" Value="add.png"/>
-                </OnPlatform>
-            </ToolbarItem.Icon>
-        </ToolbarItem>
-        <ToolbarItem Text="Signup" Clicked="SignupUser_Clicked">
-        </ToolbarItem>
-    </ContentPage.ToolbarItems>
     <ContentPage.BindingContext>
         <vm:AboutViewModel />
     </ContentPage.BindingContext>

@@ -1,4 +1,5 @@
 ﻿using PersonalDataApp.Models;
+using PersonalDataApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,18 @@ namespace PersonalDataApp.Views
 	{
         public User user { get; set; }
 
+        ProfileViewModel viewModel;
+
         public ProfilePage()
 		{
 			InitializeComponent();
+
+            BindingContext = viewModel = new ProfileViewModel();
 		}
 
-        async void UpdateProfile_Clicked(object sender, EventArgs e)
+
+
+        async void ProfileIcon_Clicked(object sender, EventArgs e)
         {
             MessagingCenter.Send(this, "UpdateProfile", user);
             await Navigation.PopModalAsync();
