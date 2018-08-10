@@ -32,7 +32,15 @@ namespace PersonalDataApp.ViewModels
         public bool IsLoggedIn
         {
             get { return isLoggedIn; }
-            set { SetProperty(ref isLoggedIn, value); }
+            set
+            {
+                SetProperty(ref isLoggedIn, value);
+                if (value)
+                {
+                    GQLhandler.UpdateAuthToken(User.Token);
+                }
+                
+            }
         }        //bool isLoggedIn = false;
         //public bool isLoggedIn
         //{

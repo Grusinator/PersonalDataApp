@@ -9,10 +9,8 @@
     </ContentPage.BindingContext>
     <ContentPage.Content>
         <StackLayout Spacing="20" Padding="15">
-            <Label Text="Username" FontSize="Medium" />
-            <Entry Text="{Binding User.Username}" FontSize="Small" />
-            <Label Text="Password" FontSize="Medium" />
-            <Editor Text="{Binding User.Password}" FontSize="Small" Margin="0" />
+            <Entry Text="{Binding User.Username}" Placeholder="Username"/>
+            <Entry Text="{Binding User.Password}" Placeholder="Password" IsPassword="True"/>
 
             <Button Text="Login" Clicked="Login_Clicked" TextColor="White" />
 

@@ -27,19 +27,11 @@ namespace PersonalDataApp.Views
 
             BindingContext = viewModel = new LoginViewModel();
 
-            //viewModel.User = new User()
-            //{
-            //    Username = "guest",
-            //    Password = "test1234",
-            //    Token = "Dummy"
-            //};
         }
 
         async void Login_Clicked(object sender, EventArgs e)
         {
-            //MessagingCenter.Send(this, "UserLogin", user);
             await Login();
-            //await Navigation.PopModalAsync();
         }
 
 

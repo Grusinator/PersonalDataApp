@@ -22,11 +22,11 @@ namespace PersonalDataApp.Services
 
         GraphQLClient graphQLClient { get; set; }
 
-        public string token {get; set;}
+        public string Token {get; set;}
 
         //static string url = "http://personal-data-api.herokuapp.com/graphql/";
         static string url = "http://192.168.1.112:8000/graphql/";
-        static string userAgent = "XamarinApp";
+        static readonly string userAgent = "XamarinApp";
 
         public GraphqlHandler()
         {
@@ -101,11 +101,11 @@ namespace PersonalDataApp.Services
                     throw new HttpRequestException(graphQLResponse.Errors[0].Message);
                 }
 
-                token = graphQLResponse.Data.tokenAuth.token.Value;
+                Token = graphQLResponse.Data.tokenAuth.token.Value;
 
-                if (token != null)
+                if (Token != null)
                 {
-                    graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + token);
+                    graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + Token);
                 }
             }
             catch( HttpRequestException e)
@@ -113,7 +113,7 @@ namespace PersonalDataApp.Services
                 throw e;
             }
 
-            return token;
+            return Token;
         }
 
         public async Task<List<Datapoint>> GetAllDatapoints()
@@ -163,33 +163,41 @@ namespace PersonalDataApp.Services
             }
         }
 
-        //public async Task UploadAudio()
+        internal void UpdateAuthToken(string token)
+        {
+            if (token != null)
+            {
+                Token = token;
+            }
+        }
+
+        //public async Task UploadDatapointWIthoutFIle()
         //{
         //    GraphQLRequest uploadAudioRequest = new GraphQLRequest
         //    {
         //        Query = @"
         //            mutation createDatapointMutation(
-	       //             $datetime: DateTime, 
-	       //             $category:CategoryTypes,
-	       //             $source_device: String!,
-	       //             $value: Float,
-	       //             $text_from_audio: String,
-	       //             $files: Upload
+        //             $datetime: DateTime, 
+        //             $category:CategoryTypes,
+        //             $source_device: String!,
+        //             $value: Float,
+        //             $text_from_audio: String,
+        //             $files: Upload
         //            ) {
         //            createDatapoint(
-		      //          datetime:$datetime, 
-		      //          category: $category,
-		      //          sourceDevice:$source_device,
-		      //          value:$value,
-		      //          textFromAudio:$text_from_audio,
-		      //          files:$files
-	       //         ){
+        //          datetime:$datetime, 
+        //          category: $category,
+        //          sourceDevice:$source_device,
+        //          value:$value,
+        //          textFromAudio:$text_from_audio,
+        //          files:$files
+        //         ){
         //                id
-		      //          category
-		      //          owner
-		      //          {
-			     //           username
-		      //          }
+        //          category
+        //          owner
+        //          {
+        //           username
+        //          }
         //            }
         //        }",
         //        OperationName = "createDatapointMutation",
@@ -375,9 +383,9 @@ namespace PersonalDataApp.Services
             // You could add authentication here as well if needed:
             //request.PreAuthenticate = true;
             //request.AuthenticationLevel = System.Net.Security.AuthenticationLevel.MutualAuthRequested;
-            if (token != null)
+            if (Token != null)
             {
-                request.Headers.Add("Authorization", "JWT " + token);
+                request.Headers.Add("Authorization", "JWT " + Token);
             }
            
 
