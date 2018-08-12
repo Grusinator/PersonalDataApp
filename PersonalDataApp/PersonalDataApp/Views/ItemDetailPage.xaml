@@ -4,9 +4,13 @@
              x:Class="PersonalDataApp.Views.ItemDetailPage"
              Title="{Binding Title}">
     <StackLayout Spacing="20" Padding="15">
-        <Label Text="Text:" FontSize="Medium" />
+        <Label Text="Dato:" FontSize="Medium" />
+        <Label Text="{Binding Datapoint.Datetime}" FontSize="Small"/>
+        <Label Text="Category:" FontSize="Medium" />
         <Label Text="{Binding Datapoint.Category}" FontSize="Small"/>
-        <Label Text="Description:" FontSize="Medium" />
+        <Label Text="Text from Audio:" FontSize="Medium" />
         <Label Text="{Binding Datapoint.TextFromAudio}" FontSize="Small"/>
+
+
     </StackLayout>
 </ContentPage>

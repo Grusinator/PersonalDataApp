@@ -24,11 +24,7 @@ namespace PersonalDataApp.Views
         {
             InitializeComponent();
 
-            var datapoint = new Datapoint
-            {
-                Category = "Item 1",
-                TextFromAudio = "This is an item description."
-            };
+            var datapoint = new Datapoint{};
 
             viewModel = new ItemDetailViewModel(datapoint);
             BindingContext = viewModel;

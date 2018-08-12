@@ -21,7 +21,12 @@ namespace PersonalDataApp.ViewModels
 
         private List<Tuple<Datapoint, String>> GQLQueue = new List<Tuple<Datapoint, string>>();
 
-        public IAudioRecorder recorder { get; set; }
+        private static List<Permission> PermissionList = new List<Permission>() {
+            Permission.Storage,
+            Permission.Microphone
+        };
+
+    public IAudioRecorder recorder { get; set; }
 
         public ICommand OpenWebCommand { get; }
         public ICommand TestCommand { get; }
@@ -31,27 +36,12 @@ namespace PersonalDataApp.ViewModels
         public ICommand StartPlayingCommand { get; }
         public ICommand StopPlayingCommand { get; }
 
-        string userAction = string.Empty;
-        public string UserAction
-        {
-            get { return userAction; }
-            set { SetProperty(ref userAction, value); }
-        }
-
 
         string someText = "None yet!";
         public string SomeText
         {
             get { return someText; }
             set { SetProperty(ref someText, value); }
-        }
-
-
-        string textFromAudio = string.Empty;
-        public string TextFromAudio
-        {
-            get { return textFromAudio; }
-            set { SetProperty(ref textFromAudio, value); }
         }
 
         bool enableStartRecordContinously = false;
@@ -117,34 +107,12 @@ namespace PersonalDataApp.ViewModels
         {
             Title = "About";
 
-            UserAction = "Login";
-
-            textFromAudio = "";
-
             recorder = App.CreateAudioRecorder();
 
             recorder.RecordStatusChanged += UpdateRecordStatus;
             recorder.AudioReadyForUpload += UploadAudioData;
 
-            
-
-            //OpenWebCommand = new Command(() => RequestPermissions(
-            //    new List<Permission>() {
-            //        Permission.Storage,
-            //        Permission.Microphone
-            //    }
-            //));
-
             //StartUploadScheduler();
-
-            TestCommand = new Command(() => {
-                RequestPermissions(
-                    new List<Permission>() {
-                        Permission.Storage,
-                        Permission.Microphone
-                    }
-                );
-            });
             
             StartRecordingContinouslyCommand = new Command(() => StartRecordingContinously());
             StartRecordingCommand = new Command(() => StartRecording());
@@ -153,13 +121,21 @@ namespace PersonalDataApp.ViewModels
             StopPlayingCommand = new Command(() => StopPlayback());
 
             UpdateGuiReadyForRecording();
-        }
 
- 
+            RequestPermissions(PermissionList);
+
+            MessagingCenter.Subscribe<StartPage, User>(this, "BroadcastUser", (obj, user) =>
+            {
+                User = user;
+                IsLoggedIn = true;
+            });
+        }
 
         private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)
         {
-            SomeText = UploadAudioDataPoint(e.Datetime, e.Filepath);
+            var datapoint = UploadAudioDataPoint(e.Datetime, e.Filepath);
+            SomeText = datapoint.TextFromAudio;
+            MessagingCenter.Send(this, "AddDatapoint", datapoint);
         }
 
         void UpdateRecordStatus(object sender, AudioRecorderGeneric.AudioDataEventArgs e)
@@ -192,8 +168,8 @@ namespace PersonalDataApp.ViewModels
 
             foreach (var elm in recorder.AudioFileQueue)
             {
-                string audiotext = UploadAudioDataPoint(elm.Item1, elm.Item2);
-                if (audiotext != null)
+                var datapoint = UploadAudioDataPoint(elm.Item1, elm.Item2);
+                if (datapoint.TextFromAudio != null)
                 {
                     donelist.Add(elm);
                 }
@@ -201,7 +177,7 @@ namespace PersonalDataApp.ViewModels
             donelist.ForEach(el => recorder.AudioFileQueue.Remove(el));
         }
 
-        private string UploadAudioDataPoint(DateTime datetime, string filepath)
+        private Datapoint UploadAudioDataPoint(DateTime datetime, string filepath)
         {
             Datapoint obj = new Datapoint()
             {
@@ -212,8 +188,8 @@ namespace PersonalDataApp.ViewModels
 
             try
             {
-                obj = GQLhandler.UploadDatapoint(obj, filepath2: filepath);
-                return obj.TextFromAudio;
+                GQLhandler.UpdateAuthToken(User.Token);
+                return GQLhandler.UploadDatapoint(obj, filepath2: filepath);
             }
             catch (Exception ex)
             {

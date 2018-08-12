@@ -20,6 +20,15 @@ namespace PersonalDataApp.ViewModels
             set { SetProperty(ref errorMessage, value); }
         }
 
+        public LoginViewModel()
+        {
+            User = new User()
+            {
+                Username = "guest",
+                Password = "test1234"
+            };
+        }
+
         
 
 

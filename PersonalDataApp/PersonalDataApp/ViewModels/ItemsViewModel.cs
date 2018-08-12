@@ -7,6 +7,7 @@ using Xamarin.Forms;
 
 using PersonalDataApp.Models;
 using PersonalDataApp.Views;
+using System.Threading;
 
 namespace PersonalDataApp.ViewModels
 {
@@ -21,17 +22,32 @@ namespace PersonalDataApp.ViewModels
             Datapoints = new ObservableCollection<Datapoint>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
-            MessagingCenter.Subscribe<NewItemPage, Datapoint>(this, "AddDatapoint", async (obj, datapoint) =>
+
+            MessagingCenter.Subscribe<StartPage, User>(this, "BroadcastUser", (obj, user) =>
+            {
+                User = user;
+                IsLoggedIn = true;
+
+                LoadItemsCommand.Execute(null);
+            });
+
+            MessagingCenter.Subscribe<AboutViewModel, Datapoint>(this, "AddDatapoint", async (obj, datapoint) =>
             {
                 var _datapoint = datapoint as Datapoint;
                 Datapoints.Add(_datapoint);
+                //OnPropertyChanged("Datapoints");
                 await DataStore.AddItemAsync(_datapoint);
             });
         }
 
+        private void OnUserLoaded(object sender, EventArgs e)
+        {
+            
+        }
+
         async Task ExecuteLoadItemsCommand()
         {
-            if (IsBusy)
+            if (IsBusy || !IsLoggedIn)
                 return;
 
             IsBusy = true;

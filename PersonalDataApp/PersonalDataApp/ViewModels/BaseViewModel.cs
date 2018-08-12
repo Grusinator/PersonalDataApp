@@ -13,19 +13,16 @@ namespace PersonalDataApp.ViewModels
 {
     public class BaseViewModel : INotifyPropertyChanged
     {
-        public IDataStore<Datapoint> DataStore => DependencyService.Get<IDataStore<Datapoint>>() ?? new DatapointDataStore();
 
         public GraphqlHandler GQLhandler = new GraphqlHandler();
 
-        User user = new User(); // { Username = "guest", Password = "test1234"};
+        public IDataStore<Datapoint> DataStore => DependencyService.Get<IDataStore<Datapoint>>() ?? new DatapointDataStore(GQLhandler);
+
+        User user = new User();
         public User User
         {
             get { return user; }
-            set
-            {
-                IsLoggedIn = user.Token == null ? false : true;
-                SetProperty(ref user, value);
-            }
+            set { SetProperty(ref user, value); }
         }
 
         bool isLoggedIn = false;
@@ -41,26 +38,7 @@ namespace PersonalDataApp.ViewModels
                 }
                 
             }
-        }        //bool isLoggedIn = false;
-        //public bool isLoggedIn
-        //{
-        //    get { return isLoggedIn; }
-        //    set { SetProperty(ref isLoggedIn, value); }
-        //}
-
-
-        //public PersonalDataApp.Models.User user
-        //{
-        //    get { return user; }
-        //    set
-        //    {
-        //        if (user.token != null)
-        //        {
-        //            isLoggedIn = true;
-        //            SetProperty(ref user, value);
-        //        }
-        //    }
-        //}
+        }
 
         bool isBusy = false;
         public bool IsBusy
@@ -80,7 +58,7 @@ namespace PersonalDataApp.ViewModels
 
         public BaseViewModel()
         {
-            MessagingCenter.Subscribe<StartPage, User>(this, "BroadcastUser", (obj, user) => User = user);
+            
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using PersonalDataApp.Models;
@@ -11,25 +12,14 @@ namespace PersonalDataApp.Services
     public class DatapointDataStore : IDataStore<Datapoint>
     {
         List<Datapoint> datapoints;
+        GraphqlHandler gqlHandler;
 
-        GraphqlHandler gQLHandler;
-
-        public DatapointDataStore()
+        public DatapointDataStore(GraphqlHandler gqlHandler = null)
         {
             datapoints = new List<Datapoint>();
 
-            gQLHandler = new GraphqlHandler();
+            this.gqlHandler = gqlHandler ?? new GraphqlHandler();
 
-            var mockItems = new List<Datapoint>
-            {
-                new Datapoint { Category = "test", TextFromAudio = "blah bla" },
-                new Datapoint { Category = "test", TextFromAudio = "blah bla2"  }
-            };
-
-            foreach (var item in mockItems)
-            {
-                datapoints.Add(item);
-            }
         }
 
         public async Task<bool> AddItemAsync(Datapoint item)
@@ -63,7 +53,7 @@ namespace PersonalDataApp.Services
 
         public async Task<IEnumerable<Datapoint>> GetItemsAsync(bool forceRefresh = false)
         {
-            datapoints = await gQLHandler.GetAllDatapoints();
+            datapoints = await gqlHandler.GetAllDatapoints();
             datapoints.Reverse();
             return await Task.FromResult(datapoints);
         }

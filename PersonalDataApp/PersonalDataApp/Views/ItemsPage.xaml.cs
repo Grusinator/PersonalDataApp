@@ -37,16 +37,16 @@ namespace PersonalDataApp.Views
             ItemsListView.SelectedItem = null;
         }
 
-        async void AddItem_Clicked(object sender, EventArgs e)
-        {
-            await Navigation.PushModalAsync(new NavigationPage(new NewItemPage()));
-        }
+        //async void AddItem_Clicked(object sender, EventArgs e)
+        //{
+        //    await Navigation.PushModalAsync(new NavigationPage(new NewItemPage()));
+        //}
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
-            if (viewModel.Datapoints.Count == 0 && false)
+            if (viewModel.Datapoints.Count == 0)
                 viewModel.LoadItemsCommand.Execute(null);
         }
     }

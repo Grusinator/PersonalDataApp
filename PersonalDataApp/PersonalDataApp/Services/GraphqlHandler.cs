@@ -22,10 +22,19 @@ namespace PersonalDataApp.Services
 
         GraphQLClient graphQLClient { get; set; }
 
-        public string Token {get; set;}
+        private string token = string.Empty;
+        public string Token
+        {
+            get { return token; }
+            set
+            {
+                graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + value);
+                token = value;
+            }
+        }
 
         //static string url = "http://personal-data-api.herokuapp.com/graphql/";
-        static string url = "http://192.168.1.112:8000/graphql/";
+        static string url = "http://192.168.1.103:8000/graphql/";
         static readonly string userAgent = "XamarinApp";
 
         public GraphqlHandler()
@@ -103,10 +112,10 @@ namespace PersonalDataApp.Services
 
                 Token = graphQLResponse.Data.tokenAuth.token.Value;
 
-                if (Token != null)
-                {
-                    graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + Token);
-                }
+                //if (Token != null)
+                //{
+                //    graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + Token);
+                //}
             }
             catch( HttpRequestException e)
             {
@@ -138,8 +147,6 @@ namespace PersonalDataApp.Services
             try
             {
 
-                await Login("guest", "test1234");
-
                 var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
 
                 List<Datapoint> list = new List<Datapoint>();
@@ -165,7 +172,7 @@ namespace PersonalDataApp.Services
 
         internal void UpdateAuthToken(string token)
         {
-            if (token != null)
+            if (token != null && token != Token)
             {
                 Token = token;
             }
