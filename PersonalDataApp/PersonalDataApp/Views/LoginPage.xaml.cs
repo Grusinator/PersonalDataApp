@@ -53,7 +53,8 @@ namespace PersonalDataApp.Views
             {
                 viewModel.ErrorMessage = "success";
                 viewModel.User.Token = _user.Token;
-                await Navigation.PopModalAsync();
+                Application.Current.MainPage = new MainPage(viewModel.User);
+                //await Navigation.PopModalAsync();
                 MessagingCenter.Send(this, "LoggedInUser", viewModel.User);
             }
         }

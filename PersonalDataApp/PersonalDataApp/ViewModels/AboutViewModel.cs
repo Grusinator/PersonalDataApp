@@ -105,7 +105,7 @@ namespace PersonalDataApp.ViewModels
 
         public AboutViewModel()
         {
-            Title = "About";
+            Title = "Recording";
 
             recorder = App.CreateAudioRecorder();
 

@@ -11,6 +11,6 @@ namespace PersonalDataApp.Views
 		public AboutPage()
 		{
 			InitializeComponent();
-		}
+        }
     }
 }

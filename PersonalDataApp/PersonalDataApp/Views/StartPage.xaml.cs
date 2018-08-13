@@ -25,7 +25,7 @@ namespace PersonalDataApp.Views
         {
             if (user.Token != null)
             {
-                Application.Current.MainPage = new MainPage();
+                //Application.Current.MainPage = new MainPage(user);
 
                 //send new User message here to new Main page
                 MessagingCenter.Send(this, "BroadcastUser", user);
