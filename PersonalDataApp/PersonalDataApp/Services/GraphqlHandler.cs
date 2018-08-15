@@ -34,7 +34,7 @@ namespace PersonalDataApp.Services
         }
 
         //static string url = "http://personal-data-api.herokuapp.com/graphql/";
-        static string url = "http://192.168.1.103:8000/graphql/";
+        static string url = "http://192.168.1.24:8000/graphql/";
         static readonly string userAgent = "XamarinApp";
 
         public GraphqlHandler()
@@ -112,10 +112,6 @@ namespace PersonalDataApp.Services
 
                 Token = graphQLResponse.Data.tokenAuth.token.Value;
 
-                //if (Token != null)
-                //{
-                //    graphQLClient.DefaultRequestHeaders.Add("Authorization", "JWT " + Token);
-                //}
             }
             catch( HttpRequestException e)
             {
@@ -408,6 +404,11 @@ namespace PersonalDataApp.Services
             StreamReader loResponseStream = new StreamReader(loWebResponse.GetResponseStream(), encoding);
 
             string lcHtml = loResponseStream.ReadToEnd();
+
+            if (lcHtml.Contains("error"))
+            {
+                ;
+            }
 
             return lcHtml;
         }

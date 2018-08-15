@@ -28,7 +28,7 @@ namespace PersonalDataApp.ViewModels
                 User = user;
                 IsLoggedIn = true;
 
-                LoadItemsCommand.Execute(null);
+                //LoadItemsCommand.Execute(null);
             });
 
             MessagingCenter.Subscribe<AboutViewModel, Datapoint>(this, "AddDatapoint", async (obj, datapoint) =>
@@ -58,7 +58,13 @@ namespace PersonalDataApp.ViewModels
                 var items = await DataStore.GetItemsAsync(true);
                 foreach (var item in items)
                 {
-                    Datapoints.Add(item);
+                    var _item = new Datapoint()
+                    {
+                        Category = item.Category,
+                        TextFromAudio = item.TextFromAudio ?? "!null!",
+                        Datetime = item.Datetime
+                    };
+                    Datapoints.Add(_item);
                 }
             }
             catch (Exception ex)

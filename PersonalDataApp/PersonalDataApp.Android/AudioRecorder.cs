@@ -124,10 +124,8 @@ namespace PersonalDataApp.Droid
 
         private async Task RecordAudioContinuously()
         {
-
-            byte[] audioBuffer = new byte[16000];
-
-            byte[] preAudioBuffer = new byte[16000];
+            byte[] audioBuffer = new byte[8000];
+            byte[] preAudioBuffer = new byte[8000];
 
             audioRecord = new AudioRecord(
                 AudioSource.Mic,// Hardware source of recording.
@@ -136,8 +134,6 @@ namespace PersonalDataApp.Droid
                 encoding,// Audio encoding
                 audioBuffer.Length// Length of the audio clip.
             );
-
-            int totalAudioLen = 0;
 
             _forceStop = false;
 
@@ -149,23 +145,32 @@ namespace PersonalDataApp.Droid
                 while (!_forceStop)
                 {
                     //start listening
-                    totalAudioLen += await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
+                    await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
 
                     //analysis
                     var intbuffer = ByteArrayTo16Bit(audioBuffer);
 
                     var audioData = new AudioData(intbuffer, isRecording);
 
+                    if (audioData.IsAllZeros)
+                    {
+                        //not sure if it is neccesary
+                        isRecording = false;
+                        memory.Flush();
+                        memory.Clear(); // this one is though
+                        continue;
+                    };
 
+                    //this should be smarter ;)
                     containsVoice = audioData.IdentifyVoice();
 
+                    //send info to MVVM to display
                     OnRecordStatusChanged(new AudioDataEventArgs(audioData));
 
 
                     //if voice has been detected, start writing 
                     if (containsVoice && !isRecording)
                     {
-                        totalAudioLen = 0;
                         isRecording = true;
                         stream.Write(preAudioBuffer, 0, preAudioBuffer.Length);
                         stream.Write(audioBuffer, 0, audioBuffer.Length);
@@ -183,52 +188,53 @@ namespace PersonalDataApp.Droid
                         //save to file
                         wavPath = Path.Combine(audioDir, Guid.NewGuid().ToString() + "_audio.wav");
 
-                        //Get one more segment of sound
-                        totalAudioLen += await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
-                        stream.Write(audioBuffer, 0, audioBuffer.Length);
-
-                        using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
-                        using (BinaryWriter bWriter = new BinaryWriter(outputStream))
+                        //how much audio do we have
+                        if ((int)memory.Length <= 2 * audioBuffer.Length)
                         {
-                            //write header
-                            WriteWaveFileHeader(bWriter, totalAudioLen);
-
-                            memory.WriteTo(outputStream);
-
-                            //close file
-                            outputStream.Close();
-                            bWriter.Close();
-
+                            //this is probably a false positive, at least no valid sound because to short
                             isRecording = false;
+                            continue;
                         }
+                        else
+                        {
+                            //Get one more segment of sound
+                            await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
+                            stream.Write(audioBuffer, 0, audioBuffer.Length);
 
+                            using (System.IO.Stream outputStream = System.IO.File.Open(wavPath, FileMode.Create))
+                            using (BinaryWriter bWriter = new BinaryWriter(outputStream))
+                            {
+                                //write header
+                                WriteWaveFileHeader(bWriter, (int)memory.Length);
+
+                                memory.WriteTo(outputStream);
+
+                                //close file
+                                outputStream.Close();
+                                bWriter.Close();
+
+                                isRecording = false;
+                            }
+
+                            OnAudioReadyForUpload(new AudioUploadEventArgs(DateTime.Now.ToUniversalTime(), wavPath));
+                        }
                         //not sure if it is neccesary
                         memory.Flush();
                         memory.Clear(); // this one is though
-
-                        //OnAudioReadyForUpload(new AudioUploadEventArgs(DateTime.Now.ToUniversalTime(), wavPath));
-
-                        //this file is now fully written and can be sent to server for analysis
-                        //AudioFileQueue.Add(new Tuple<DateTime,string>(DateTime.Now, wavPath));
                     }
-                    else
                     //no voice
-                    {
-                        ;
-                    }
+                    else { ; }
 
                     preAudioBuffer = (byte[])audioBuffer.Clone();
                 }
                 //break out of continously loop
 
-                //TODO: handle break
+                //TODO: handle break - does not care if we were recording
 
                 audioRecord.Stop();
                 audioRecord.Dispose();
             }
         }
-
-
 
         private async Task RecordAudioAsync()
         {

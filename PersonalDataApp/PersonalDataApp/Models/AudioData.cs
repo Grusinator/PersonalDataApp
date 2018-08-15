@@ -17,6 +17,7 @@ namespace PersonalDataApp.Models
         public bool? ContainsVoice { get; set; }
         public bool? IsRecording { get; set; }
         public int SampleFrequency { get; set; }
+        public bool IsAllZeros { get; set; }
 
         public AudioData(short[] intbuffer, bool? isRecording=null)
         {
@@ -26,6 +27,8 @@ namespace PersonalDataApp.Models
             Sos = intbuffer.Select(x => (long)x).Aggregate((prev, next) => prev + next * next);
             Rms = Math.Sqrt((double)1 / intbuffer.Length * Sos);
             Fft = AudioRecorderGeneric.FFT(intbuffer);
+
+            IsAllZeros = !intbuffer.Any((val) => val != 0);
 
             IsRecording = isRecording;
         }

@@ -101,7 +101,19 @@ namespace PersonalDataApp.ViewModels
             set { SetProperty(ref audioValue, value); }
         }
 
+        bool diableFileUpload = false;
+        public bool DisableFileUpload
+        {
+            get { return diableFileUpload; }
+            set { SetProperty(ref diableFileUpload, value); }
+        }
 
+        bool booleanSwitch = true;
+        public bool BooleanSwitch
+        {
+            get { return booleanSwitch; }
+            set { SetProperty(ref booleanSwitch, value); }
+        }
 
         public AboutViewModel()
         {
@@ -134,8 +146,10 @@ namespace PersonalDataApp.ViewModels
         private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)
         {
             var datapoint = UploadAudioDataPoint(e.Datetime, e.Filepath);
-            SomeText = datapoint.TextFromAudio;
-            MessagingCenter.Send(this, "AddDatapoint", datapoint);
+            if (datapoint.TextFromAudio == "")
+            { datapoint.TextFromAudio = "is empty"; }
+            SomeText = datapoint.TextFromAudio ?? "is null";
+            //MessagingCenter.Send(this, "AddDatapoint", datapoint);
         }
 
         void UpdateRecordStatus(object sender, AudioRecorderGeneric.AudioDataEventArgs e)
@@ -143,6 +157,7 @@ namespace PersonalDataApp.ViewModels
             IsRecording = e.AudioData.IsRecording ?? false;
             IndicatorColor = IsRecording ? "BLUE" : "RED";
             AudioValue = e.AudioData.Rms/1000;
+            BooleanSwitch = e.AudioData.IsAllZeros;
         }
 
         private void StartUploadScheduler()
@@ -189,7 +204,40 @@ namespace PersonalDataApp.ViewModels
             try
             {
                 GQLhandler.UpdateAuthToken(User.Token);
-                return GQLhandler.UploadDatapoint(obj, filepath2: filepath);
+
+                if (DisableFileUpload)
+                {
+                    filepath = null;
+                    return obj;
+                }
+
+                if (!File.Exists(filepath))
+                {
+                    ;
+                }
+
+                BooleanSwitch = true;
+                var respObj = GQLhandler.UploadDatapoint(obj, filepath2: filepath);
+
+                BooleanSwitch = false;
+
+                if (respObj == null)
+                {
+                    //try again, so much the file that is the problem, what is wrong?
+                    respObj = GQLhandler.UploadDatapoint(obj, filepath2: null);
+
+                    if (File.Exists(filepath))
+                    {
+                        var bytes = File.ReadAllBytes(filepath);
+                        var stringbyu = System.Text.Encoding.ASCII.GetString(bytes);
+                        obj.TextFromAudio = "ERROR length: " + bytes.Length.ToString();
+                        return obj;
+
+                    }
+                }
+
+                
+                return respObj;
             }
             catch (Exception ex)
             {
