@@ -145,7 +145,12 @@ namespace PersonalDataApp.ViewModels
 
         private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)
         {
-            var datapoint = UploadAudioDataPoint(e.Datetime, e.Filepath);
+            Task.Run(async () => await UploadAudioDataAsync(e.Datetime, e.Filepath));
+        }
+
+        private async Task UploadAudioDataAsync(DateTime datetime, string filepath)
+        {
+            var datapoint = await UploadAudioDataPointAsync(datetime, filepath);
             if (datapoint.TextFromAudio == "")
             { datapoint.TextFromAudio = "is empty"; }
             SomeText = datapoint.TextFromAudio ?? "is null";
@@ -167,7 +172,7 @@ namespace PersonalDataApp.ViewModels
                     while (keepUploading)
                     {
                         await Task.Delay(5000);
-                        UploadAvailableData();
+                        await UploadAvailableDataAsync();
                     }
                 }
             );
@@ -177,13 +182,13 @@ namespace PersonalDataApp.ViewModels
             keepUploading = false;
         }
 
-        private void UploadAvailableData()
+        private async Task UploadAvailableDataAsync()
         {
             var donelist = new List<Tuple<DateTime, String>>();
 
             foreach (var elm in recorder.AudioFileQueue)
             {
-                var datapoint = UploadAudioDataPoint(elm.Item1, elm.Item2);
+                var datapoint = await UploadAudioDataPointAsync(elm.Item1, elm.Item2);
                 if (datapoint.TextFromAudio != null)
                 {
                     donelist.Add(elm);
@@ -192,7 +197,7 @@ namespace PersonalDataApp.ViewModels
             donelist.ForEach(el => recorder.AudioFileQueue.Remove(el));
         }
 
-        private Datapoint UploadAudioDataPoint(DateTime datetime, string filepath)
+        private async Task<Datapoint> UploadAudioDataPointAsync(DateTime datetime, string filepath)
         {
             Datapoint obj = new Datapoint()
             {
@@ -217,14 +222,14 @@ namespace PersonalDataApp.ViewModels
                 }
 
                 BooleanSwitch = true;
-                var respObj = GQLhandler.UploadDatapoint(obj, filepath2: filepath);
+                var respObj = await GQLhandler.UploadDatapointAsync(obj, filepath2: filepath);
 
                 BooleanSwitch = false;
 
                 if (respObj == null)
                 {
                     //try again, so much the file that is the problem, what is wrong?
-                    respObj = GQLhandler.UploadDatapoint(obj, filepath2: null);
+                    respObj = await GQLhandler.UploadDatapointAsync(obj, filepath2: null);
 
                     if (File.Exists(filepath))
                     {
@@ -235,8 +240,6 @@ namespace PersonalDataApp.ViewModels
 
                     }
                 }
-
-                
                 return respObj;
             }
             catch (Exception ex)

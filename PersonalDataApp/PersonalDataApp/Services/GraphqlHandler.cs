@@ -33,8 +33,10 @@ namespace PersonalDataApp.Services
             }
         }
 
-        //static string url = "http://personal-data-api.herokuapp.com/graphql/";
-        static string url = "http://192.168.1.24:8000/graphql/";
+        static string url = "http://personal-data-api.herokuapp.com/graphql/";
+
+
+        //static string url = "http://192.168.1.24:8000/graphql/";
         static readonly string userAgent = "XamarinApp";
 
         public GraphqlHandler()
@@ -119,6 +121,55 @@ namespace PersonalDataApp.Services
             }
 
             return Token;
+        }
+
+
+        public async Task<User> UpdateProfileAsync(User user)
+        {
+            var uploadAudioRequest = new GraphQLRequest
+            {
+                Query = @"mutation UpdateProfileMutation($name: String, $birthdate: Date, $language: Languages!, $audio_threshold: Float) {
+	                        updateProfile(
+		                        name: $name, 
+		                        birthdate: $birthdate, 
+		                        language: $language, 
+		                        audioThreshold: $audio_threshold){
+			                        name
+			                        language
+			                        birthdate
+			                        audioThreshold
+			                        user{
+				                        username
+			                        }
+		                        }
+	                        }",
+                OperationName = "UpdateProfileMutation",
+                Variables = new
+                {
+                    name = user.Name,
+                    birthdate = user.Birthdate,
+                    language = user.Language,
+                    audio_threshold = user.AudioThreshold,
+                }
+            };
+            try
+            {
+                var graphQLResponse = await graphQLClient.PostAsync(uploadAudioRequest);
+
+                if (graphQLResponse.Errors != null)
+                {
+                    throw new HttpRequestException(graphQLResponse.Errors[0].Message);
+                }
+                if (user.Name == graphQLResponse.Data.updateProfile.profile.name.Value)
+                {
+                    return user;
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                throw e;
+            }
+            return null;
         }
 
         public async Task<List<Datapoint>> GetAllDatapoints()
@@ -221,7 +272,7 @@ namespace PersonalDataApp.Services
 
 
 
-        public Datapoint UploadDatapoint(Datapoint obj, string filepath1 = null, string filepath2 = null)
+        public async Task<Datapoint> UploadDatapointAsync(Datapoint obj, string filepath1 = null, string filepath2 = null)
         {
             string variables = serializeVariablesFromObject(obj);
 
@@ -253,7 +304,7 @@ namespace PersonalDataApp.Services
 
             Query = "mutation testmutation($datetime:DateTime, $category:CategoryTypes, $source_device:String!, $value:Float, $text_from_audio:String, $files:Upload!) {createDatapoint(datetime:$datetime, category:$category, sourceDevice:$source_device, value:$value, textFromAudio:$text_from_audio, files:$files){ id datetime category sourceDevice textFromAudio }}";
 
-            string jsonString = upload2FilesGeneric(Query, variables, filepath1, filepath2);
+            string jsonString = await upload2FilesGenericAsync(Query, variables, filepath1, filepath2);
 
             if (jsonString.Contains("errors"))
             {
@@ -299,7 +350,7 @@ namespace PersonalDataApp.Services
             return datapoint;
         }
 
-        private string upload2FilesGeneric(string query, string variables, string filepath1 = "", string filepath2 = "")
+        private async Task<string> upload2FilesGenericAsync(string query, string variables, string filepath1 = "", string filepath2 = "")
         {
             string filename1 = Path.GetFileName(filepath1);
             string filename2 = Path.GetFileName(filepath2);
@@ -313,7 +364,7 @@ namespace PersonalDataApp.Services
                 { "1", filepath2 != null ? new FileParameter(File.ReadAllBytes(filepath2), filename2) : null }
             };
 
-            var response = MultipartFormDataPost(url, userAgent, postParameters);
+            var response = await MultipartFormDataPostAsync(url, userAgent, postParameters);
 
             return response.ToString();
         }
@@ -333,7 +384,7 @@ namespace PersonalDataApp.Services
                 { "1", filepath2 != null ? new FileParameter(File.ReadAllBytes(filepath2), filename2) : null }
             };
 
-            var response = MultipartFormDataPost(url, userAgent, postParameters);
+            var response = MultipartFormDataPostAsync(url, userAgent, postParameters);
             return true;
         }
 
@@ -348,7 +399,7 @@ namespace PersonalDataApp.Services
                 { "0", new FileParameter(File.ReadAllBytes(filepath), filename) }
             };
 
-            var response = MultipartFormDataPost(url, userAgent, postParameters);
+            var response = MultipartFormDataPostAsync(url, userAgent, postParameters);
             return true;
         }
 
@@ -357,17 +408,17 @@ namespace PersonalDataApp.Services
         // http://www.briangrinstead.com/blog/multipart-form-post-in-c
 
         
-        public string MultipartFormDataPost(string postUrl, string userAgent, Dictionary<string, object> postParameters)
+        public async Task<string> MultipartFormDataPostAsync(string postUrl, string userAgent, Dictionary<string, object> postParameters)
         {
             string formDataBoundary = String.Format("----------{0:N}", Guid.NewGuid());
             string contentType = "multipart/form-data; boundary=" + formDataBoundary;
 
             byte[] formData = GetMultipartFormData(postParameters, formDataBoundary);
 
-            return PostForm(postUrl, userAgent, contentType, formData);
+            return await PostFormAsync(postUrl, userAgent, contentType, formData);
         }
 
-        private string PostForm(string postUrl, string userAgent, string contentType, byte[] formData)
+        private async Task<string> PostFormAsync(string postUrl, string userAgent, string contentType, byte[] formData)
         {
             HttpWebRequest request = WebRequest.Create(postUrl) as HttpWebRequest;
 
@@ -399,7 +450,9 @@ namespace PersonalDataApp.Services
                 requestStream.Close();
             }
 
-            HttpWebResponse loWebResponse = (HttpWebResponse)request.GetResponse();
+            var loWebResponse = await request.GetResponseAsync();
+
+            HttpWebResponse response = (HttpWebResponse)loWebResponse;
 
             StreamReader loResponseStream = new StreamReader(loWebResponse.GetResponseStream(), encoding);
 

@@ -54,7 +54,7 @@ namespace PersonalDataApp.Services
         public async Task<IEnumerable<Datapoint>> GetItemsAsync(bool forceRefresh = false)
         {
             datapoints = await gqlHandler.GetAllDatapoints();
-            datapoints.Reverse();
+            //datapoints.Reverse();
             return await Task.FromResult(datapoints);
         }
     }

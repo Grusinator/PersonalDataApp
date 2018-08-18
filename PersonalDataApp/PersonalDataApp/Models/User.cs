@@ -13,6 +13,8 @@ namespace PersonalDataApp.Models
         public string Name { get; set; }
         public DateTime Birthdate { get; set; } 
         public string Language { get; set; }
+        public double AudioThreshold { get; set; }
+
 
     }
 }

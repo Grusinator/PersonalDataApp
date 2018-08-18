@@ -2,16 +2,11 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PersonalDataApp.ViewModels"
-             x:Class="PersonalDataApp.Views.ProfilePage"
+             x:Class="PersonalDataApp.Views.UpdateProfilePage"
              Title="Account">
     <ContentPage.BindingContext>
         <vm:ProfileViewModel />
     </ContentPage.BindingContext>
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Edit Profile" Clicked="EditProfile_Clicked">
-        </ToolbarItem>
- 
-    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid>
             <Grid.RowDefinitions>
@@ -20,12 +15,14 @@
             </Grid.RowDefinitions>
             <ScrollView Grid.Row="1">
                 <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
-                    <Label Text="{Binding User.Username}"/>
-                    <Label Text="{Binding User.Name}" />
-                    <Label Text="{Binding User.Email}"/>
+                    <Entry Text="{Binding User.Username}" Placeholder="Username"/>
+                    <Entry Text="{Binding User.Name}" Placeholder="Name"/>
+                    <Entry Text="{Binding User.Email}" Placeholder="Email" Keyboard="Email"/>
+                    <Entry Text="{Binding User.Password}" Placeholder="Password" IsPassword="True"/>
                     <Label Text="Date Of Birth"/>
                     <DatePicker Date="{Binding User.Birthdate}" />
                     <Label Text="Address"/>
+                    <Button Text="Save" Clicked="EditProfile_Clicked"/>
                 </StackLayout>
             </ScrollView>
         </Grid>

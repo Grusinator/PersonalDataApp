@@ -27,10 +27,9 @@ namespace PersonalDataApp.Views
 
 
 
-        async void ProfileIcon_Clicked(object sender, EventArgs e)
+        async void EditProfile_Clicked(object sender, EventArgs e)
         {
-            MessagingCenter.Send(this, "UpdateProfile", user);
-            await Navigation.PopModalAsync();
+            await Navigation.PushModalAsync(new NavigationPage(new UpdateProfilePage()));
         }
 
     }
