@@ -15,14 +15,39 @@
             </Grid.RowDefinitions>
             <ScrollView Grid.Row="1">
                 <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
-                    <Entry Text="{Binding User.Username}" Placeholder="Username"/>
-                    <Entry Text="{Binding User.Name}" Placeholder="Name"/>
-                    <Entry Text="{Binding User.Email}" Placeholder="Email" Keyboard="Email"/>
-                    <Entry Text="{Binding User.Password}" Placeholder="Password" IsPassword="True"/>
-                    <Label Text="Date Of Birth"/>
+                    
+                    <Label Text="Username" FontSize="10"/>
+                    <Entry Text="{Binding User.Username}"/>
+
+                    <Label Text="Name" FontSize="10"/>
+                    <Entry Text="{Binding User.Name}"/>
+
+                    <Label Text="Email" FontSize="10"/>
+                    <Entry Text="{Binding User.Email}"  Keyboard="Email"/>
+
+                    <Label Text="Password" FontSize="10"/>
+                    <Entry Text="{Binding User.Password}"  IsPassword="True"/>
+
+                    <Label Text="Date Of Birth" FontSize="10"/>
                     <DatePicker Date="{Binding User.Birthdate}" />
-                    <Label Text="Address"/>
+
+                    <Label Text="Language" FontSize="10"/>
+                    <Entry Text="{Binding User.Language}"/>
+
+                    <Label Text="Audio Threshold" FontSize="10"/>
+                    <Slider Value="{Binding User.AudioThreshold}"/>
+
                     <Button Text="Save" Clicked="EditProfile_Clicked"/>
+
+                    <ActivityIndicator
+                        IsVisible="{Binding IsBusy}"
+                        IsRunning="{Binding IsBusy}"
+                        HeightRequest="40"
+                        VerticalOptions="CenterAndExpand"
+                        HorizontalOptions="CenterAndExpand"
+                        Color="Black" />
+                    
+                    <Label Text="{Binding ErrorMessage}" FontSize="Medium" TextColor="Red"/>
                 </StackLayout>
             </ScrollView>
         </Grid>

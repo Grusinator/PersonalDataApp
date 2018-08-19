@@ -33,10 +33,9 @@ namespace PersonalDataApp.Services
             }
         }
 
-        static string url = "http://personal-data-api.herokuapp.com/graphql/";
+        //static string url = "http://personal-data-api.herokuapp.com/graphql/";
+        static string url = "http://192.168.1.112:8000/graphql/";
 
-
-        //static string url = "http://192.168.1.24:8000/graphql/";
         static readonly string userAgent = "XamarinApp";
 
         public GraphqlHandler()
@@ -133,21 +132,26 @@ namespace PersonalDataApp.Services
 		                        name: $name, 
 		                        birthdate: $birthdate, 
 		                        language: $language, 
-		                        audioThreshold: $audio_threshold){
-			                        name
-			                        language
-			                        birthdate
-			                        audioThreshold
-			                        user{
-				                        username
-			                        }
+		                        audioThreshold: $audio_threshold)
+                                {
+                                    profile
+                                    {
+			                            name
+			                            language
+			                            birthdate
+			                            audioThreshold
+			                            user
+                                        {
+				                            username
+			                            }
+                                    }
 		                        }
 	                        }",
                 OperationName = "UpdateProfileMutation",
                 Variables = new
                 {
                     name = user.Name,
-                    birthdate = user.Birthdate,
+                    birthdate = user.Birthdate.Date.ToString("yyyy-MM-dd"),
                     language = user.Language,
                     audio_threshold = user.AudioThreshold,
                 }
@@ -160,7 +164,8 @@ namespace PersonalDataApp.Services
                 {
                     throw new HttpRequestException(graphQLResponse.Errors[0].Message);
                 }
-                if (user.Name == graphQLResponse.Data.updateProfile.profile.name.Value)
+                var respUsername = graphQLResponse.Data.updateProfile.profile.user.username.Value;
+                if (user.Username == respUsername)
                 {
                     return user;
                 }

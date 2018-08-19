@@ -14,7 +14,6 @@ namespace PersonalDataApp.Views
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class ProfilePage : ContentPage
 	{
-        public User user { get; set; }
 
         ProfileViewModel viewModel;
 
@@ -23,14 +22,20 @@ namespace PersonalDataApp.Views
 			InitializeComponent();
 
             BindingContext = viewModel = new ProfileViewModel();
-		}
 
+            viewModel.User.Language = "Danish";
+
+            MessagingCenter.Subscribe<UpdateProfilePage, User>(this, "UpdateProfile", (obj, user) =>
+            {
+                viewModel.User = user;
+                viewModel.User.Name = "william";
+            });
+        }
 
 
         async void EditProfile_Clicked(object sender, EventArgs e)
         {
-            await Navigation.PushModalAsync(new NavigationPage(new UpdateProfilePage()));
+            await Navigation.PushModalAsync(new NavigationPage(new UpdateProfilePage(viewModel.User)));
         }
-
     }
 }

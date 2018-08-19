@@ -15,14 +15,20 @@ namespace PersonalDataApp.Views
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class UpdateProfilePage : ContentPage
 	{
-        public User user { get; set; }
-
         ProfileViewModel viewModel;
 
-        public UpdateProfilePage ()
+        public UpdateProfilePage()
 		{
 			InitializeComponent ();
             BindingContext = viewModel = new ProfileViewModel();
+        }
+
+        public UpdateProfilePage(User user)
+        {
+            InitializeComponent();
+            BindingContext = viewModel = new ProfileViewModel();
+            viewModel.User = user;
+            viewModel.GQLhandler.UpdateAuthToken(user.Token);
         }
 
         async void EditProfile_Clicked(object sender, EventArgs e)
@@ -35,21 +41,22 @@ namespace PersonalDataApp.Views
         {
             var _user = new User();
 
-            IsBusy = true;
+            viewModel.IsBusy = true;
             try
             {
                 _user = await viewModel.GQLhandler.UpdateProfileAsync(viewModel.User);
             }
             catch (HttpRequestException e)
             {
-                //viewModel.ErrorMessage = "failed: " + e.Message;
+                viewModel.ErrorMessage = "failed: " + e.Message;
+                _user = null;
             }
-            IsBusy = false;
+            viewModel.IsBusy = false;
             if (_user != null)
             {
-                //viewModel.ErrorMessage = "success";
+                viewModel.ErrorMessage = "success";
                 await Navigation.PopModalAsync();
-                MessagingCenter.Send(this, "LoggedInUser", viewModel.User);
+                MessagingCenter.Send(this, "UpdateProfile", _user);
             }
         }
     }

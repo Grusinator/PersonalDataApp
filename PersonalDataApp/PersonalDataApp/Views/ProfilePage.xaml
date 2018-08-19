@@ -20,12 +20,24 @@
             </Grid.RowDefinitions>
             <ScrollView Grid.Row="1">
                 <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
+                    <Label Text="Username" FontSize="10"/>
                     <Label Text="{Binding User.Username}"/>
-                    <Label Text="{Binding User.Name}" />
+                    
+                    <Label Text="Email" FontSize="10"/>
                     <Label Text="{Binding User.Email}"/>
-                    <Label Text="Date Of Birth"/>
-                    <DatePicker Date="{Binding User.Birthdate}" />
-                    <Label Text="Address"/>
+                    
+                    <Label Text="Name" FontSize="10"/>
+                    <Label Text="{Binding User.Name}"/>
+                    
+                    <Label Text="Date Of Birth" FontSize="10"/>
+                    <Label Text="{Binding User.Birthdate.Date}" />
+                    
+                    <Label Text="Language" FontSize="10"/>
+                    <Label Text="{Binding User.Language}" />
+                    
+                    <Label Text="Audio Threshold" FontSize="10"/>
+                    <Label Text="{Binding User.AudioThreshold}" />
+                    
                 </StackLayout>
             </ScrollView>
         </Grid>

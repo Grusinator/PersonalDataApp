@@ -34,7 +34,7 @@ namespace PersonalDataApp.Views
         {
             var _user = new User();
 
-            IsBusy = true;
+            viewModel.IsBusy = true;
             //try to signup
             try
             {
@@ -59,7 +59,7 @@ namespace PersonalDataApp.Views
                     await Task.Delay(2000);
                     await Navigation.PopModalAsync();
                 }
-                IsBusy = false;
+                viewModel.IsBusy = false;
                 //if succeed - 
                 if (_user.Token != null)
                 {

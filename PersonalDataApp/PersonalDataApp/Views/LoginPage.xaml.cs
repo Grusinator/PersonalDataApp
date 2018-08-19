@@ -39,7 +39,7 @@ namespace PersonalDataApp.Views
         {
             var _user = new User();
 
-            IsBusy = true;
+            viewModel.IsBusy = true;
             try
             {
                 _user.Token = await viewModel.GQLhandler.Login(viewModel.User.Username, viewModel.User.Password);
@@ -48,7 +48,7 @@ namespace PersonalDataApp.Views
             {
                 viewModel.ErrorMessage = "failed: " + e.Message;
             }
-            IsBusy = false;
+            viewModel.IsBusy = false;
             if (_user.Token != null)
             {
                 viewModel.ErrorMessage = "success";
