@@ -1,4 +1,5 @@
 ﻿using PersonalDataApp.Models;
+using Prism.Navigation;
 using System;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -11,13 +12,5 @@ namespace PersonalDataApp.Views
         {
             InitializeComponent();
         }
-
-        async void Login_Clicked(object sender, EventArgs e)
-        {
-            await Login();
-        }
-
-
-        
     }
 }

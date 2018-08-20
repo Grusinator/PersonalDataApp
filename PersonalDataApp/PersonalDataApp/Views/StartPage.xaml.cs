@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using Prism.Navigation;
+using Xamarin.Forms;
 
 namespace PersonalDataApp.Views
 {

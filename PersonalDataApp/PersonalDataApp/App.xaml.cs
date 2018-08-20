@@ -28,7 +28,7 @@ namespace PersonalDataApp
         {
             InitializeComponent();
 
-            await NavigationService.NavigateAsync("NavigationPage/MainTabbedPage");
+            await NavigationService.NavigateAsync("PrismNavigationPage/StartPage");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -39,11 +39,11 @@ namespace PersonalDataApp
             containerRegistry.RegisterForNavigation<RecordingPage>();
             containerRegistry.RegisterForNavigation<ProfilePage>();
             containerRegistry.RegisterForNavigation<DataPage>();
-            containerRegistry.RegisterForNavigation<RecordingPage>();
-            containerRegistry.RegisterForNavigation<StartPage>();
 
+            containerRegistry.RegisterForNavigation<StartPage>();
             containerRegistry.RegisterForNavigation<LoginPage>();
             containerRegistry.RegisterForNavigation<SignupPage>();
+            containerRegistry.RegisterForNavigation<PrismNavigationPage>();
         }
     }
 }

@@ -4,5 +4,15 @@
              xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="PersonalDataApp.Views.StartPage">
-  
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Welcome to Xamarin.Forms!"
+                VerticalOptions="CenterAndExpand" 
+                HorizontalOptions="CenterAndExpand" />
+
+            <Button Text="Login" Command="{Binding LoginCommand}" TextColor="White" />
+            <Button Text="Signup" Command="{Binding SignupCommand}" TextColor="White" />
+            
+        </StackLayout>
+    </ContentPage.Content>
 </ContentPage>

@@ -4,6 +4,8 @@ using Prism.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace PersonalDataApp.ViewModels
 {
@@ -14,5 +16,21 @@ namespace PersonalDataApp.ViewModels
         {
 
         }
-	}
+
+        private ICommand _loginCommand;
+        public ICommand LoginCommand => _loginCommand ?? (_loginCommand = new DelegateCommand(
+            () => Task.Run(async () =>
+            {
+                await NavigationService.NavigateAsync("PrismNavigationPage/LoginPage");
+            }))
+        );
+
+        private ICommand _signupCommand;
+        public ICommand SignupCommand => _signupCommand ?? (_signupCommand = new DelegateCommand(
+            () => Task.Run(async () =>
+            {
+                await NavigationService.NavigateAsync("PrismNavigationPage/SignupPage");
+            }))
+        );
+    }
 }
