@@ -13,39 +13,35 @@ namespace PersonalDataApp.ViewModels
 {
 	public class LoginPageViewModel : ViewModelBase
 	{
-
-        private ICommand _loginCommand;
-        public ICommand LoginCommand => _loginCommand ?? (_loginCommand = new DelegateCommand(
-            () => Task.Run(async () => await Login()))
-        );
-
-
         public LoginPageViewModel(INavigationService navigationService)
             : base(navigationService)
         {
 
         }
 
-        private async Task Login()
+        public DelegateCommand LoginCommand => new DelegateCommand(Login);
+
+        private async void Login()
         {
-            var _user = new User();
 
             IsBusy = true;
             try
             {
-                _user.Token = await GQLhandler.Login(User.Username, User.Password);
+                var Token = await GQLhandler.Login(User.Username, User.Password);
+                User = await GQLhandler.GetUser();
+                User.Token = Token;
             }
             catch (HttpRequestException e)
             {
                 ErrorMessage = "failed: " + e.Message;
             }
             IsBusy = false;
-            if (_user.Token != null || true)
+            if (User.Token != null)
             {
                 ErrorMessage = "success";
-                User.Token = _user.Token;
-                await NavigationService.NavigateAsync("PrismNavigationPage/MainTabbedPage");
-                //EventAggregator.Send(this, "LoggedInUser", User);
+
+                var p = new NavigationParameters(){{"user", User}};
+                await NavigationService.NavigateAsync("MainTabbedPage", p);
             }
         }
     }

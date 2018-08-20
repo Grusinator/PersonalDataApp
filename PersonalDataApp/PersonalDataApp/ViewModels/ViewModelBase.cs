@@ -84,7 +84,11 @@ namespace PersonalDataApp.ViewModels
 
         public virtual void OnNavigatingTo(NavigationParameters parameters)
         {
-
+            if (parameters.ContainsKey("user"))
+            {
+                User = (User)parameters["user"];
+            }
+            var a = Title;
         }
 
         public virtual void Destroy()

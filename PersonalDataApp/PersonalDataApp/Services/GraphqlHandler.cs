@@ -33,8 +33,8 @@ namespace PersonalDataApp.Services
             }
         }
 
-        static string url = "http://personal-data-api.herokuapp.com/graphql/";
-        //static string url = "http://192.168.1.24:8000/graphql/";
+        //static string url = "http://personal-data-api.herokuapp.com/graphql/";
+        static string url = "http://192.168.1.112:8000/graphql/";
         static readonly string userAgent = "XamarinApp";
 
         public GraphqlHandler()
@@ -119,6 +119,58 @@ namespace PersonalDataApp.Services
             }
 
             return Token;
+        }
+
+        public async Task<User> GetUser()
+        {
+            var getUserRequest = new GraphQLRequest
+            {
+                Query = @"
+                query GetUserQueue{
+	                user 
+                    {
+		                username
+		                email
+		                lastName
+		                firstName
+	                }
+	                profile
+                    {
+		                language
+		                birthdate
+		                audioThreshold
+	                }
+                }",
+                OperationName = "GetUserQueue",
+                Variables = new
+                {
+                }
+            };
+            try
+            {
+                var graphQLResponse = await graphQLClient.PostAsync(getUserRequest);
+
+                if (graphQLResponse.Errors != null)
+                {
+                    throw new HttpRequestException(graphQLResponse.Errors[0].Message);
+                }
+                dynamic user = graphQLResponse.Data.user;
+                dynamic profile = graphQLResponse.Data.profile;
+                return new User()
+                {
+                    Username = user.username,
+                    FirstName = user.firstName,
+                    LastName = user.lastName,
+                    Email = user.email,
+                    Language = profile.language,
+                    Birthdate = profile.birthdate,
+                    AudioThreshold = profile.audioThreshold
+                };
+            }
+            catch (HttpRequestException e)
+            {
+                throw e;
+            }
         }
 
         public async Task<List<Datapoint>> GetAllDatapoints()

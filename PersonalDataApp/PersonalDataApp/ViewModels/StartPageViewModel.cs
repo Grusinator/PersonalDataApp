@@ -17,20 +17,17 @@ namespace PersonalDataApp.ViewModels
 
         }
 
-        private ICommand _loginCommand;
-        public ICommand LoginCommand => _loginCommand ?? (_loginCommand = new DelegateCommand(
-            () => Task.Run(async () =>
-            {
-                await NavigationService.NavigateAsync("PrismNavigationPage/LoginPage");
-            }))
-        );
+        public DelegateCommand LoginCommand => new DelegateCommand(NavigateToLogin);
+        public DelegateCommand SignupCommand => new DelegateCommand(NavigateToSignup);
 
-        private ICommand _signupCommand;
-        public ICommand SignupCommand => _signupCommand ?? (_signupCommand = new DelegateCommand(
-            () => Task.Run(async () =>
-            {
-                await NavigationService.NavigateAsync("PrismNavigationPage/SignupPage");
-            }))
-        );
+        private async void NavigateToLogin()
+        {
+            await NavigationService.NavigateAsync("LoginPage");
+        }
+
+        private async void NavigateToSignup()
+        {
+            await NavigationService.NavigateAsync("SignupPage");
+        }
     }
 }

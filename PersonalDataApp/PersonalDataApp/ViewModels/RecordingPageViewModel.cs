@@ -136,12 +136,6 @@ namespace PersonalDataApp.ViewModels
             UpdateGuiReadyForRecording();
 
             RequestPermissions(PermissionList);
-
-            //MessagingCenter.Subscribe<StartPage, User>(this, "BroadcastUser", (obj, user) =>
-            //{
-            //    User = user;
-            //    IsLoggedIn = true;
-            //});
         }
 
         private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)
@@ -155,7 +149,6 @@ namespace PersonalDataApp.ViewModels
             if (datapoint.TextFromAudio == "")
             { datapoint.TextFromAudio = "is empty"; }
             SomeText = datapoint.TextFromAudio ?? "is null";
-            //MessagingCenter.Send(this, "AddDatapoint", datapoint);
         }
 
         void UpdateRecordStatus(object sender, AudioRecorderGeneric.AudioDataEventArgs e)
