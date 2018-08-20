@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="PersonalDataApp.Views.DataPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <ListView x:Name="ItemsListView" 
+                ItemsSource="{Binding Datapoints}"
+                VerticalOptions="FillAndExpand"
+                 HasUnevenRows="true"
+                 RefreshCommand="{Binding LoadItemsCommand}"
+                 IsPullToRefreshEnabled="true"
+                 IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+                 CachingStrategy="RecycleElement">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Padding="10">
+                                <Label Text="{Binding Datetime}" 
+                                   LineBreakMode="NoWrap" 
+                                   Style="{DynamicResource ListItemTextStyle}" 
+                                    />
+                                <Label Text="{Binding TextFromAudio}"
+                                   LineBreakMode="NoWrap"
+                                   Style="{DynamicResource ListItemDetailTextStyle}"
+                                   FontSize="Small" />
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

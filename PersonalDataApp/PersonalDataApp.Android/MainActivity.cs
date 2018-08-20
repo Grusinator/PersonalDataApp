@@ -1,6 +1,9 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using Android.Runtime;
+using Plugin.CurrentActivity;
+using Plugin.Permissions;
 using Prism;
 using Prism.Ioc;
 
@@ -17,7 +20,19 @@ namespace PersonalDataApp.Droid
             base.OnCreate(bundle);
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
+
+            App.CreateAudioRecorder = () => new AudioRecorder();
+            // used for Plugin.Permissions 
+            CrossCurrentActivity.Current.Activity = this;
+
+
             LoadApplication(new App(new AndroidInitializer()));
+        }
+
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
+        {
+            PermissionsImplementation.Current.OnRequestPermissionsResult(requestCode, permissions, grantResults);
+            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 

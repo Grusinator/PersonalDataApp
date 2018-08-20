@@ -5,6 +5,8 @@ using PersonalDataApp.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Prism.DryIoc;
+using PersonalDataApp.Services;
+using System;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace PersonalDataApp
@@ -20,17 +22,28 @@ namespace PersonalDataApp
 
         public App(IPlatformInitializer initializer) : base(initializer) { }
 
+        public static Func<IAudioRecorder> CreateAudioRecorder { get; set; }
+
         protected override async void OnInitialized()
         {
             InitializeComponent();
 
-            await NavigationService.NavigateAsync("NavigationPage/MainPage");
+            await NavigationService.NavigateAsync("NavigationPage/MainTabbedPage");
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterForNavigation<NavigationPage>();
             containerRegistry.RegisterForNavigation<MainPage>();
+            containerRegistry.RegisterForNavigation<MainTabbedPage>();
+            containerRegistry.RegisterForNavigation<RecordingPage>();
+            containerRegistry.RegisterForNavigation<ProfilePage>();
+            containerRegistry.RegisterForNavigation<DataPage>();
+            containerRegistry.RegisterForNavigation<RecordingPage>();
+            containerRegistry.RegisterForNavigation<StartPage>();
+
+            containerRegistry.RegisterForNavigation<LoginPage>();
+            containerRegistry.RegisterForNavigation<SignupPage>();
         }
     }
 }
