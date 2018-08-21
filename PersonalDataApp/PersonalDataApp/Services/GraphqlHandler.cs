@@ -121,24 +121,39 @@ namespace PersonalDataApp.Services
             return Token;
         }
 
+        private User dynamicProfileToUser(dynamic profile, string token = null)
+        {
+            return new User()
+            {
+                Username = profile.user.username,
+                FirstName = profile.user.firstName,
+                LastName = profile.user.lastName,
+                Email = profile.user.email,
+                Language = profile.language,
+                Birthdate = profile.birthdate,
+                AudioThreshold = profile.audioThreshold,
+                Token = token ?? Token  //keep the token
+            };
+        }
+
         public async Task<User> GetUser()
         {
             var getUserRequest = new GraphQLRequest
             {
                 Query = @"
                 query GetUserQueue{
-	                user 
-                    {
-		                username
-		                email
-		                lastName
-		                firstName
-	                }
 	                profile
                     {
 		                language
 		                birthdate
 		                audioThreshold
+                        user 
+                        {
+		                    username
+		                    email
+		                    lastName
+		                    firstName
+	                    }
 	                }
                 }",
                 OperationName = "GetUserQueue",
@@ -154,24 +169,69 @@ namespace PersonalDataApp.Services
                 {
                     throw new HttpRequestException(graphQLResponse.Errors[0].Message);
                 }
-                dynamic user = graphQLResponse.Data.user;
+
                 dynamic profile = graphQLResponse.Data.profile;
-                return new User()
-                {
-                    Username = user.username,
-                    FirstName = user.firstName,
-                    LastName = user.lastName,
-                    Email = user.email,
-                    Language = profile.language,
-                    Birthdate = profile.birthdate,
-                    AudioThreshold = profile.audioThreshold
-                };
+                return dynamicProfileToUser(profile);
             }
             catch (HttpRequestException e)
             {
                 throw e;
             }
         }
+
+        public async Task<User> UpdateProfileAsync(User user)
+        {
+            var UpdateProfileRequest = new GraphQLRequest
+            {
+                Query = @"
+                mutation UpdateProfileMutation($birthdate: Date, $language: Languages!, $audio_threshold: Float) {
+	            updateProfile(
+		            birthdate: $birthdate, 
+		            language: $language, 
+		            audioThreshold: $audio_threshold){
+			            profile{
+				            language
+				            birthdate
+				            audioThreshold
+				            user
+                            {
+					            username
+                                firstName
+                                lastName
+                                email
+					        }
+				        }
+		            }
+	            }",
+                OperationName = "UpdateProfileMutation",
+                Variables = new
+                {
+                    birthdate = user.Birthdate.Date.ToString("yyyy-MM-dd"),
+                    language = user.Language,
+                    audio_threshold = user.AudioThreshold
+                }
+            };
+            try
+            {
+                var graphQLResponse = await graphQLClient.PostAsync(UpdateProfileRequest);
+
+                if (graphQLResponse.Errors != null)
+                {
+                    throw new HttpRequestException(graphQLResponse.Errors[0].Message);
+                }
+                
+                dynamic profile = graphQLResponse.Data.updateProfile.profile;
+                return dynamicProfileToUser(profile);
+            }
+            catch (HttpRequestException e)
+            {
+                throw e;
+            }
+        }
+
+
+
+
 
         public async Task<List<Datapoint>> GetAllDatapoints()
         {
@@ -270,8 +330,6 @@ namespace PersonalDataApp.Services
         //    var succeeded = graphQLResponse.Data.createDatapoint.category.Value;
 
         //}
-
-
 
         public async Task<Datapoint> UploadDatapointAsync(Datapoint obj, string filepath1 = null, string filepath2 = null)
         {
@@ -389,7 +447,7 @@ namespace PersonalDataApp.Services
             return true;
         }
 
-        public bool uploadFile(string filepath)
+        private bool uploadFile(string filepath)
         {
             string filename = Path.GetFileName(filepath);
 
@@ -409,7 +467,7 @@ namespace PersonalDataApp.Services
         // http://www.briangrinstead.com/blog/multipart-form-post-in-c
 
         
-        public async Task<string> MultipartFormDataPostAsync(string postUrl, string userAgent, Dictionary<string, object> postParameters)
+        private async Task<string> MultipartFormDataPostAsync(string postUrl, string userAgent, Dictionary<string, object> postParameters)
         {
             string formDataBoundary = String.Format("----------{0:N}", Guid.NewGuid());
             string contentType = "multipart/form-data; boundary=" + formDataBoundary;

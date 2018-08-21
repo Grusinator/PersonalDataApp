@@ -43,6 +43,7 @@ namespace PersonalDataApp
             containerRegistry.RegisterForNavigation<LoginPage>();
             containerRegistry.RegisterForNavigation<SignupPage>();
 
+            containerRegistry.RegisterForNavigation<UpdateProfilePage>();
         }
     }
 }

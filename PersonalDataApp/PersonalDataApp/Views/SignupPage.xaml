@@ -4,5 +4,36 @@
              xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
              prism:ViewModelLocator.AutowireViewModel="True"
              x:Class="PersonalDataApp.Views.SignupPage">
-  
+    <ContentPage.Content>
+
+
+        <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
+            <Entry Text="{Binding User.Username}" Placeholder="Username"/>
+            <Entry Text="{Binding User.Name}" Placeholder="Name"/>
+            <Entry Text="{Binding User.Email}" Placeholder="Email" Keyboard="Email"/>
+            <Entry Text="{Binding User.Password}" Placeholder="Password" IsPassword="True"/>
+            <Label Text="Date Of Birth"/>
+            <DatePicker Date="{Binding User.Birthdate}" />
+            <Label Text="Address"/>
+            <Editor/>
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Save Password"/>
+                <Switch IsToggled="False"/>
+            </StackLayout>
+            <Button Text="Signup" Command="{Binding SignupCommand}" BackgroundColor="CornflowerBlue" TextColor="White" />
+            <ActivityIndicator
+                        IsVisible="{Binding IsBusy}"
+                        IsRunning="{Binding IsBusy}"
+                        HeightRequest="40"
+                        VerticalOptions="CenterAndExpand"
+                        HorizontalOptions="CenterAndExpand"
+                        Color="Black" />
+            <Label Text="{Binding ErrorMessage}" FontSize="Medium" TextColor="Red"/>
+        </StackLayout>
+
+
+
+
+
+    </ContentPage.Content>
 </ContentPage>

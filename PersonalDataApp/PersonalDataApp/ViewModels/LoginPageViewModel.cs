@@ -16,7 +16,8 @@ namespace PersonalDataApp.ViewModels
         public LoginPageViewModel(INavigationService navigationService)
             : base(navigationService)
         {
-
+            User.Username = "guest";
+            User.Password = "test1234";
         }
 
         public DelegateCommand LoginCommand => new DelegateCommand(Login);

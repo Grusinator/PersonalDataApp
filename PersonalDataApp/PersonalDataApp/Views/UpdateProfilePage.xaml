@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="PersonalDataApp.Views.UpdateProfilePage">
+    <ContentPage.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ScrollView Grid.Row="1">
+                <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
+
+                    <Label Text="Username" FontSize="Small"/>
+                    <Entry Text="{Binding User.Username}"/>
+
+                    <Label Text="First Name" FontSize="Small"/>
+                    <Entry Text="{Binding User.FirstName}"/>
+
+                    <Label Text="Last Name" FontSize="Small"/>
+                    <Entry Text="{Binding User.LastName}"/>
+
+                    <Label Text="Email" FontSize="Small"/>
+                    <Entry Text="{Binding User.Email}"  Keyboard="Email"/>
+
+                    <Label Text="Password" FontSize="Small"/>
+                    <Entry Text="{Binding User.Password}"  IsPassword="True"/>
+
+                    <Label Text="Date Of Birth" FontSize="Small"/>
+                    <DatePicker Date="{Binding User.Birthdate}" />
+
+                    <Label Text="Language" FontSize="Small"/>
+                    <Entry Text="{Binding User.Language}"/>
+
+                    <Label Text="Audio Threshold" FontSize="Small"/>
+                    <Slider Value="{Binding User.AudioThreshold}" Maximum="1000"/>
+
+
+                    <Button Text="Save" Command="{Binding UpdateProfileCommand}"/>
+
+                    <ActivityIndicator
+                        IsVisible="{Binding IsBusy}"
+                        IsRunning="{Binding IsBusy}"
+                        HeightRequest="40"
+                        VerticalOptions="CenterAndExpand"
+                        HorizontalOptions="CenterAndExpand"
+                        Color="Black" />
+
+                    <Label Text="{Binding ErrorMessage}" FontSize="Medium" TextColor="Red"/>
+                </StackLayout>
+            </ScrollView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

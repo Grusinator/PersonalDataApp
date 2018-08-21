@@ -159,6 +159,13 @@ namespace PersonalDataApp.ViewModels
             BooleanSwitch = e.AudioData.IsAllZeros;
         }
 
+        public override void OnNavigatingTo(NavigationParameters parameters)
+        {
+            base.OnNavigatingTo(parameters);
+            
+            recorder.ThresholdValue = User.AudioThreshold;
+        }
+
         private void StartUploadScheduler()
         {
             keepUploading = true;

@@ -55,6 +55,8 @@ namespace PersonalDataApp.Droid
         public bool containsVoice;
         public bool _forceStop;
 
+        public double ThresholdValue { get; set; } = 0;
+
 
         string pathSave { get; set; }
 
@@ -162,7 +164,7 @@ namespace PersonalDataApp.Droid
                     };
 
                     //this should be smarter ;)
-                    containsVoice = audioData.IdentifyVoice();
+                    containsVoice = audioData.IdentifyVoice(ThresholdValue);
 
                     //send info to MVVM to display
                     OnRecordStatusChanged(new AudioDataEventArgs(audioData));

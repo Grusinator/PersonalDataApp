@@ -14,5 +14,13 @@ namespace PersonalDataApp.ViewModels
         {
 
         }
-	}
+
+        public DelegateCommand UpdateProfileCommand => new DelegateCommand(NavigateToUpdateProfile);
+
+        private async void NavigateToUpdateProfile()
+        {
+            var p = new NavigationParameters() { { "user", User } };
+            await NavigationService.NavigateAsync("UpdateProfilePage", p);
+        }
+    }
 }

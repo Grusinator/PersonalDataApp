@@ -12,24 +12,27 @@
             </Grid.RowDefinitions>
             <ScrollView Grid.Row="1">
                 <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
-                    <Label Text="Username" />
+                    <Label Text="Username" FontSize="Small"/>
                     <Label Text="{Binding User.Username}"/>
 
-                    <Label Text="Email" />
+                    <Label Text="Email" FontSize="Small"/>
                     <Label Text="{Binding User.Email}"/>
 
-                    <Label Text="Name" />
-                    <Label Text="{Binding User.Name}"/>
+                    <Label Text="First Name" FontSize="Small"/>
+                    <Label Text="{Binding User.FirstName}"/> 
+                    
+                    <Label Text="Last Name" FontSize="Small"/>
+                    <Label Text="{Binding User.LastName}"/>
 
-                    <Label Text="Date Of Birth" />
+                    <Label Text="Date Of Birth" FontSize="Small"/>
                     <Label Text="{Binding User.Birthdate.Date}" />
 
-                    <Label Text="Language" />
+                    <Label Text="Language" FontSize="Small" />
                     <Label Text="{Binding User.Language}" />
 
-                    <Label Text="Audio Threshold" />
+                    <Label Text="Audio Threshold" FontSize="Small" />
                     <Label Text="{Binding User.AudioThreshold}" />
-
+                    <Button Text="Edit" Command="{Binding UpdateProfileCommand}"/>
                 </StackLayout>
             </ScrollView>
         </Grid>

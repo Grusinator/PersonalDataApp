@@ -33,7 +33,11 @@ namespace PersonalDataApp.ViewModels
         public User User
         {
             get { return user; }
-            set { SetProperty(ref user, value); }
+            set
+            {
+                SetProperty(ref user, value);
+                IsLoggedIn = user.Token != null;
+            }
         }
 
         bool isLoggedIn = false;
@@ -88,7 +92,6 @@ namespace PersonalDataApp.ViewModels
             {
                 User = (User)parameters["user"];
             }
-            var a = Title;
         }
 
         public virtual void Destroy()
