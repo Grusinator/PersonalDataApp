@@ -136,6 +136,13 @@ namespace PersonalDataApp.ViewModels
             UpdateGuiReadyForRecording();
 
             RequestPermissions(PermissionList);
+
+            EventAggregator.GetEvent<IsThresholdUpdated>().Subscribe(UpdateThreshold);
+        }
+
+        private void UpdateThreshold(double value)
+        {
+            recorder.ThresholdValue = value;
         }
 
         private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)

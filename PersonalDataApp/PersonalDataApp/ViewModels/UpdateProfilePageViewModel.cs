@@ -20,7 +20,6 @@ namespace PersonalDataApp.ViewModels
 
         public DelegateCommand UpdateProfileCommand => new DelegateCommand(UpdateProfile);
 
-
         private async void UpdateProfile()
         {
             User _user = new User();

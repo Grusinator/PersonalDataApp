@@ -5,5 +5,5 @@ using Prism.Events;
 
 namespace PersonalDataApp.Models
 {
-    public class IsFunChangedEvent : PubSubEvent<bool> { }
+    public class IsThresholdUpdated : PubSubEvent<Double> { }
 }
