@@ -33,7 +33,7 @@ namespace PersonalDataApp.Droid
         //public event EventHandler<AudioDataEventArgs> RecordStatusChanged;
 
         static int minbufferSize = AudioRecord.GetMinBufferSize(
-            sampleRateInHz: sampleRate, 
+            sampleRateInHz: sampleFrequency, 
             channelConfig: channelIn, 
             audioFormat: encoding
         );
@@ -131,7 +131,7 @@ namespace PersonalDataApp.Droid
 
             audioRecord = new AudioRecord(
                 AudioSource.Mic,// Hardware source of recording.
-                sampleRate,// Frequency
+                sampleFrequency,// Frequency
                 channelIn,// Mono or stereo
                 encoding,// Audio encoding
                 audioBuffer.Length// Length of the audio clip.
@@ -152,7 +152,9 @@ namespace PersonalDataApp.Droid
                     //analysis
                     var intbuffer = ByteArrayTo16Bit(audioBuffer);
 
-                    var audioData = new AudioData(intbuffer, isRecording);
+                    var audioData = new AudioData(intbuffer, sampleFrequency, isRecording);
+
+                    audioData.FftPeakFrequency();
 
                     if (audioData.IsAllZeros)
                     {
@@ -246,7 +248,7 @@ namespace PersonalDataApp.Droid
 
             audioRecord = new AudioRecord(
                 AudioSource.Mic,// Hardware source of recording.
-                sampleRate,// Frequency
+                sampleFrequency,// Frequency
                 channelIn,// Mono or stereo
                 encoding,// Audio encoding
                 audioBuffer.Length// Length of the audio clip.
@@ -272,16 +274,6 @@ namespace PersonalDataApp.Droid
                 {
                     totalAudioLen += await audioRecord.ReadAsync(audioBuffer, 0, audioBuffer.Length);
                     bWriter.Write(audioBuffer);
-                    
-                    //analysis
-                    var intbuffer = ByteArrayTo16Bit(audioBuffer);
-                    var min = intbuffer.Min();
-                    var max = intbuffer.Max();
-                    var avg = intbuffer.Average(x => (double)x);
-                    var sos = intbuffer.Select(x => (long)x)
-                        .Aggregate((prev, next) => prev + next * next);
-                    var rms = Math.Sqrt((double)1/intbuffer.Length * sos);
-                    var fft = FFT(intbuffer);
                 }
 
                 isRecording = false;
@@ -303,7 +295,7 @@ namespace PersonalDataApp.Droid
         {
             audioTrack = new AudioTrack(
                 Android.Media.Stream.Music,// Stream type
-                sampleRate,// Frequency
+                sampleFrequency,// Frequency
                 channelOut,// Mono or stereo
                 encoding,// Audio encoding
                 audBuffer.Length,// Length of the audio clip.

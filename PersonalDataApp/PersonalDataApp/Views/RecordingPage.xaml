@@ -19,12 +19,10 @@
         </Grid.RowDefinitions>
         <ScrollView Grid.Row="1">
             <StackLayout Orientation="Vertical">
-                <ProgressBar x:Name="pb_ProgressBar" BackgroundColor="{Binding IndicatorColor}" Progress="{Binding AudioValue}" ></ProgressBar>
+                <Slider BackgroundColor="{Binding IndicatorColor}" Value="{Binding AudioValue}" Maximum="15"/>
                 <StackLayout Orientation="Vertical" Padding="16,40,16,40" Spacing="10">
 
-                    <Label Text="disable file upload" />
-                    <Switch IsToggled="{Binding DisableFileUpload}"/>
-                    <Label Text="Test switch: is uploading" />
+                    <Label Text="{Binding AudioValue2}" />
                     <Switch IsToggled="{Binding BooleanSwitch}"/>
 
                     <Label Text="{Binding SomeText}"/>

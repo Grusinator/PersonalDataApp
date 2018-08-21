@@ -19,9 +19,9 @@ namespace PersonalDataApp.Services
 
         public GraphqlHandler graphqlHandler;
 
-        public static int sampleRate = 16000; //Herz
+        public static int sampleFrequency = 16000; //Herz
         public static int Nchannels = 1;
-        public static long byteRate = 16 * sampleRate * Nchannels / 8;
+        public static long byteRate = 16 * sampleFrequency * Nchannels / 8;
 
 
         public event EventHandler<AudioDataEventArgs> RecordStatusChanged;
@@ -63,7 +63,7 @@ namespace PersonalDataApp.Services
             AudioReadyForUpload?.Invoke(this, e);
         }
 
-        private void WriteWavHeader(MemoryStream stream, bool isFloatingPoint, ushort channelCount, ushort bitDepth, int sampleRate, int totalSampleCount)
+        private void WriteWavHeader(MemoryStream stream, bool isFloatingPoint, ushort channelCount, ushort bitDepth, int sampleFrequency, int totalSampleCount)
         {
             stream.Position = 0;
 
@@ -93,10 +93,10 @@ namespace PersonalDataApp.Services
             stream.Write(BitConverter.GetBytes(channelCount), 0, 2);
 
             // Sample rate.
-            stream.Write(BitConverter.GetBytes(sampleRate), 0, 4);
+            stream.Write(BitConverter.GetBytes(sampleFrequency), 0, 4);
 
             // Bytes rate.
-            stream.Write(BitConverter.GetBytes(sampleRate * channelCount * (bitDepth / 8)), 0, 4);
+            stream.Write(BitConverter.GetBytes(sampleFrequency * channelCount * (bitDepth / 8)), 0, 4);
 
             // Block align.
             stream.Write(BitConverter.GetBytes((ushort)channelCount * (bitDepth / 8)), 0, 2);
@@ -145,10 +145,10 @@ namespace PersonalDataApp.Services
             header[21] = 0;
             header[22] = (byte)Nchannels;
             header[23] = 0;
-            header[24] = (byte)(sampleRate & 0xff);
-            header[25] = (byte)((sampleRate >> 8) & 0xff);
-            header[26] = (byte)((sampleRate >> 16) & 0xff);
-            header[27] = (byte)((sampleRate >> 24) & 0xff);
+            header[24] = (byte)(sampleFrequency & 0xff);
+            header[25] = (byte)((sampleFrequency >> 8) & 0xff);
+            header[26] = (byte)((sampleFrequency >> 16) & 0xff);
+            header[27] = (byte)((sampleFrequency >> 24) & 0xff);
             header[28] = (byte)(byteRate & 0xff);
             header[29] = (byte)((byteRate >> 8) & 0xff);
             header[30] = (byte)((byteRate >> 16) & 0xff);
@@ -183,33 +183,7 @@ namespace PersonalDataApp.Services
             return output;
         }
 
-        public static double[] FFT(Int16[] sound)
-        {
-            Complex[] complexInput = new Complex[sound.Length];
-            for (int i = 0; i < complexInput.Length; i++)
-            {
-                Complex tmp = new Complex(sound[i], 0);
-                complexInput[i] = tmp;
-            }
 
-            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexInput);
-
-            return complexInput.ToList().Select(x => x.Magnitude).ToArray();
-        }
-
-        public static double[] FFT(double[] sound)
-        {
-            Complex[] complexInput = new Complex[sound.Length];
-            for (int i = 0; i < complexInput.Length; i++)
-            {
-                Complex tmp = new Complex(sound[i], 0);
-                complexInput[i] = tmp;
-            }
-
-            MathNet.Numerics.IntegralTransforms.Fourier.Forward(complexInput);
-
-            return complexInput.ToList().Select(x => x.Magnitude).ToArray();
-        }
 
     }
 }

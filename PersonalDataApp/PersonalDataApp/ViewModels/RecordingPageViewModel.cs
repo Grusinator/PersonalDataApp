@@ -102,11 +102,11 @@ namespace PersonalDataApp.ViewModels
             set { SetProperty(ref audioValue, value); }
         }
 
-        bool diableFileUpload = false;
-        public bool DisableFileUpload
+        double audioValue2 = 0.1;
+        public double AudioValue2
         {
-            get { return diableFileUpload; }
-            set { SetProperty(ref diableFileUpload, value); }
+            get { return audioValue2; }
+            set { SetProperty(ref audioValue2, value); }
         }
 
         bool booleanSwitch = true;
@@ -163,7 +163,8 @@ namespace PersonalDataApp.ViewModels
         {
             IsRecording = e.AudioData.IsRecording ?? false;
             IndicatorColor = IsRecording ? "BLUE" : "RED";
-            AudioValue = e.AudioData.Rms / 1000;
+            AudioValue = e.AudioData.FFT_VoicePower; //
+            AudioValue2 = e.AudioData.FrequencyPeak;
             BooleanSwitch = e.AudioData.IsAllZeros;
         }
 
@@ -218,12 +219,6 @@ namespace PersonalDataApp.ViewModels
             try
             {
                 GQLhandler.UpdateAuthToken(User.Token);
-
-                if (DisableFileUpload)
-                {
-                    filepath = null;
-                    return obj;
-                }
 
                 if (!File.Exists(filepath))
                 {

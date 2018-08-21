@@ -35,7 +35,7 @@
                     <Entry Text="{Binding User.Language}"/>
 
                     <Label Text="Audio Threshold" FontSize="Small"/>
-                    <Slider Value="{Binding User.AudioThreshold}" Maximum="1000"/>
+                    <Slider Value="{Binding User.AudioThreshold}" Maximum="15"/>
 
 
                     <Button Text="Save" Command="{Binding UpdateProfileCommand}"/>
