@@ -1,4 +1,5 @@
 ﻿using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Navigation;
 using System;
@@ -11,8 +12,8 @@ namespace PersonalDataApp.ViewModels
 {
 	public class StartPageViewModel : ViewModelBase
 	{
-        public StartPageViewModel(INavigationService navigationService)
-            : base(navigationService)
+        public StartPageViewModel(INavigationService navigationService, IEventAggregator eventAggregator)
+            : base(navigationService, eventAggregator)
         {
 
         }

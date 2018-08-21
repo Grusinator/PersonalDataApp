@@ -71,9 +71,10 @@ namespace PersonalDataApp.ViewModels
 
 
 
-        public ViewModelBase(INavigationService navigationService)
+        public ViewModelBase(INavigationService navigationService, IEventAggregator eventAggregator)
         {
             NavigationService = navigationService;
+            EventAggregator = eventAggregator;
         }
 
         public virtual void OnNavigatedFrom(NavigationParameters parameters)

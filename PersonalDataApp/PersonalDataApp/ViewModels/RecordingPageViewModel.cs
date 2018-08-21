@@ -3,6 +3,7 @@ using PersonalDataApp.Services;
 using Plugin.Permissions;
 using Plugin.Permissions.Abstractions;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Navigation;
 using System;
@@ -115,8 +116,8 @@ namespace PersonalDataApp.ViewModels
             set { SetProperty(ref booleanSwitch, value); }
         }
 
-        public RecordingPageViewModel(INavigationService navigationService)
-            : base(navigationService)
+        public RecordingPageViewModel(INavigationService navigationService, IEventAggregator eventAggregator)
+            : base(navigationService, eventAggregator)
         {
             Title = "Recording";
 
@@ -166,9 +167,9 @@ namespace PersonalDataApp.ViewModels
             BooleanSwitch = e.AudioData.IsAllZeros;
         }
 
-        public override void OnNavigatingTo(NavigationParameters parameters)
+        public override void OnNavigatedTo(NavigationParameters parameters)
         {
-            base.OnNavigatingTo(parameters);
+            base.OnNavigatedTo(parameters);
             
             recorder.ThresholdValue = User.AudioThreshold;
         }

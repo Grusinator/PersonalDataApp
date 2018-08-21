@@ -5,22 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using PersonalDataApp.Models;
+using Prism.Events;
 
 namespace PersonalDataApp.ViewModels
 {
 	public class ProfilePageViewModel : ViewModelBase
     {
-        public ProfilePageViewModel(INavigationService navigationService)
-            : base(navigationService)
+        public ProfilePageViewModel(INavigationService navigationService, IEventAggregator eventAggregator)
+            : base(navigationService, eventAggregator)
         {
-
+            
         }
 
-        public override void OnNavigatingTo(NavigationParameters parameters)
+        public override void OnNavigatedTo(NavigationParameters parameters)
         {
-            base.OnNavigatingTo(parameters);
+            base.OnNavigatedTo(parameters);
 
-            EventAggregator.GetEvent<IsThresholdUpdated>().Publish(User.AudioThreshold);
         }
         
 

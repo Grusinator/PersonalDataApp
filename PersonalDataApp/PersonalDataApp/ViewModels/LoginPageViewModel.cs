@@ -1,5 +1,6 @@
 ﻿using PersonalDataApp.Models;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Navigation;
 using System;
@@ -13,8 +14,8 @@ namespace PersonalDataApp.ViewModels
 {
 	public class LoginPageViewModel : ViewModelBase
 	{
-        public LoginPageViewModel(INavigationService navigationService)
-            : base(navigationService)
+        public LoginPageViewModel(INavigationService navigationService, IEventAggregator eventAggregator)
+            : base(navigationService, eventAggregator)
         {
             User.Username = "guest";
             User.Password = "test1234";

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="PersonalDataApp.Views.DatapointDetailPage">
+    <ContentPage.Content>
+        <StackLayout Spacing="20" Padding="15">
+            <Label Text="Dato:" FontSize="Medium" />
+            <Label Text="{Binding Datapoint.Datetime}" FontSize="Small"/>
+            <Label Text="Category:" FontSize="Medium" />
+            <Label Text="{Binding Datapoint.Category}" FontSize="Small"/>
+            <Label Text="Text from Audio:" FontSize="Medium" />
+            <Label Text="{Binding Datapoint.TextFromAudio}" FontSize="Small"/>
+
+
+    </StackLayout>
+    </ContentPage.Content>    
+  
+</ContentPage>

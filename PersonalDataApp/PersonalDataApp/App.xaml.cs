@@ -44,6 +44,7 @@ namespace PersonalDataApp
             containerRegistry.RegisterForNavigation<SignupPage>();
 
             containerRegistry.RegisterForNavigation<UpdateProfilePage>();
+            containerRegistry.RegisterForNavigation<DatapointDetailPage>();
         }
     }
 }
