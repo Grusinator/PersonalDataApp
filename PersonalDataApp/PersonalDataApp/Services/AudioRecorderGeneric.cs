@@ -34,11 +34,11 @@ namespace PersonalDataApp.Services
 
         public class AudioDataEventArgs : EventArgs
         {
-            public AudioData AudioData { get; set; }
+            public AudioDataAnalysis AudioDataAnalysis { get; set; }
 
-            public AudioDataEventArgs( AudioData audioData)
+            public AudioDataEventArgs(AudioDataAnalysis audioDataAnalysis)
             {
-                AudioData = audioData;
+                AudioDataAnalysis = audioDataAnalysis;
             }
         }
         public class AudioUploadEventArgs : EventArgs

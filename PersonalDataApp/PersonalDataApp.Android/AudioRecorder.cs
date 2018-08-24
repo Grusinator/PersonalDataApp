@@ -55,7 +55,7 @@ namespace PersonalDataApp.Droid
         public bool containsVoice;
         public bool _forceStop;
 
-        public double ThresholdValue { get; set; } = 0;
+        public double ThresholdValue { get; set; } = 6;
 
 
         string pathSave { get; set; }
@@ -139,6 +139,8 @@ namespace PersonalDataApp.Droid
 
             _forceStop = false;
 
+            var audioDataAnalysis = new AudioDataAnalysis(sampleFrequency);
+
             audioRecord.StartRecording();
 
             using (MemoryStream memory = new MemoryStream())
@@ -152,24 +154,25 @@ namespace PersonalDataApp.Droid
                     //analysis
                     var intbuffer = ByteArrayTo16Bit(audioBuffer);
 
-                    var audioData = new AudioData(intbuffer, sampleFrequency, isRecording);
+                    audioDataAnalysis.UpdateData(intbuffer, isRecording);
 
-                    audioData.FftPeakFrequency();
+                    audioDataAnalysis.FftPeakFrequency();
 
-                    if (audioData.IsAllZeros)
+                    if (audioDataAnalysis.IsAllZeros)
                     {
-                        //not sure if it is neccesary
                         isRecording = false;
+
+                        //not sure if it is neccesary
                         memory.Flush();
                         memory.Clear(); // this one is though
                         continue;
                     };
 
                     //this should be smarter ;)
-                    containsVoice = audioData.IdentifyVoice(ThresholdValue);
+                    containsVoice = audioDataAnalysis.IdentifyVoice(ThresholdValue);
 
                     //send info to MVVM to display
-                    OnRecordStatusChanged(new AudioDataEventArgs(audioData));
+                    OnRecordStatusChanged(new AudioDataEventArgs(audioDataAnalysis));
 
 
                     //if voice has been detected, start writing 

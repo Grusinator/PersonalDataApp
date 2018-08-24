@@ -141,6 +141,14 @@ namespace PersonalDataApp.ViewModels
             EventAggregator.GetEvent<IsThresholdUpdated>().Subscribe(UpdateThreshold);
         }
 
+        public override void OnNavigatingTo(NavigationParameters parameters)
+        {
+            base.OnNavigatingTo(parameters);
+
+            //initialize threshold in recorder
+            UpdateThreshold(User.AudioThreshold);
+        }
+
         private void UpdateThreshold(double value)
         {
             recorder.ThresholdValue = value;
@@ -161,11 +169,11 @@ namespace PersonalDataApp.ViewModels
 
         void UpdateRecordStatus(object sender, AudioRecorderGeneric.AudioDataEventArgs e)
         {
-            IsRecording = e.AudioData.IsRecording ?? false;
-            IndicatorColor = IsRecording ? "BLUE" : "RED";
-            AudioValue = e.AudioData.FFT_VoicePower; //
-            AudioValue2 = e.AudioData.FrequencyPeak;
-            BooleanSwitch = e.AudioData.IsAllZeros;
+            IsRecording = e.AudioDataAnalysis.IsRecording ?? false;
+            IndicatorColor = IsRecording ? "BLUE" : "WHITE";
+            AudioValue = e.AudioDataAnalysis.FFT_VoicePower; //
+            AudioValue2 = e.AudioDataAnalysis.Momentum;
+            BooleanSwitch = e.AudioDataAnalysis.IsAllZeros;
         }
 
         public override void OnNavigatedTo(NavigationParameters parameters)

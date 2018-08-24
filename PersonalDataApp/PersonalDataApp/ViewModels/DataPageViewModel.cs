@@ -51,6 +51,7 @@ namespace PersonalDataApp.ViewModels
             {
                 Datapoints.Clear();
                 var items = await DataStore.GetItemsAsync(true);
+                items = items.Where(x => x.TextFromAudio != null);
                 foreach (var item in items)
                 {
                     var _item = new Datapoint()

@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace PersonalDataApp.Models
 {
-    public class AudioData
+    public class AudioDataAnalysis
     {
         public double Rms { get; set; }
         public double Min { get; set; }
@@ -21,14 +21,25 @@ namespace PersonalDataApp.Models
         public bool IsAllZeros { get; set; }
         public double FrequencyPeak { get; set; }
         public double FFT_VoicePower { get; set; }
+        public double Momentum { get; set; } = 0;
+        public double Threshold { get; set; }
 
         static readonly double MinFrequencyCutoff = 80;
         static readonly double MaxFrequencyCutoff = 300;
+        static readonly double MaxMomentum = 1.5;
+        static readonly double PowerGain = 0.3;
+        static readonly double MaxPositiveChangeRate = 0.9 * MaxMomentum;
+        static readonly double MaxNegativeChangeRate = -0.05 * MaxMomentum;
 
-        public AudioData(short[] intbuffer, int sampleFrequency, bool? isRecording=null)
+
+
+        public AudioDataAnalysis( int sampleFrequency)
         {
             SampleFrequency = sampleFrequency;
+        }
 
+        public void UpdateData(short[] intbuffer, bool? isRecording = null)
+        {
             Min = intbuffer.Min();
             Max = intbuffer.Max();
             Avg = intbuffer.Average(x => (double)x);
@@ -41,11 +52,40 @@ namespace PersonalDataApp.Models
             IsRecording = isRecording;
         }
 
-        public bool IdentifyVoice(double threshold = 300)
+
+        public bool IdentifyVoice(double threshold = 6)
         {
+            Threshold = threshold;
+
             FFT_VoicePower = Math.Log10(FftAreaWithinVoiceFrequencyBand(MinFrequencyCutoff, MaxFrequencyCutoff));
-            ContainsVoice = FFT_VoicePower > threshold;
+
+            // Momentum adds or substracts a value dependent on previous sound, 
+            // High momentum makes it easier to overcome the threshold
+            // only when voice power is low, so that it takes something to start it
+
+            var AddMomentum = FFT_VoicePower < Threshold ? Momentum : 0;
+            ContainsVoice = FFT_VoicePower + AddMomentum > Threshold;
+       
+
+            //update momentum now that we know if it contains voice - use for next audiosample
+            UpdateMomentum();
             return ContainsVoice ?? false;
+        }
+
+        public double UpdateMomentum()
+        {
+            // momentum dependend on voicepower
+            var change = (FFT_VoicePower - Threshold);
+            Momentum +=  Clamp(change * PowerGain, MaxNegativeChangeRate, MaxPositiveChangeRate);
+
+            //limit momentum between 0 and max value
+            Momentum = Clamp(Momentum, 0, MaxMomentum);
+            return Momentum;
+        }
+
+        public static double Clamp(double value, double min, double max)
+        {
+            return (value < min) ? min : (value > max) ? max : value;
         }
 
         public double FftPeakFrequency()
