@@ -331,39 +331,42 @@ namespace PersonalDataApp.Services
 
         //}
 
-        public async Task<Datapoint> UploadDatapointAsync(Datapoint obj, string filepath1 = null, string filepath2 = null)
+        public async Task<Datapoint> UploadDatapointAsync(Datapoint obj, string filepath = null)
         {
-            string variables = serializeVariablesFromObject(obj);
+            string variables = serializeVariablesFromObject(obj, add_files:1);
 
-            string Query = @"
-                    mutation(
-	                    $datetime: DateTime, 
-	                    $category:CategoryTypes,
-	                    $source_device: String!,
-	                    $value: Float,
-	                    $text_from_audio: String,
-	                    $files: Upload
-                    ) {
-                    createDatapoint(
-		                datetime:$datetime, 
-		                category: $category,
-		                sourceDevice:$source_device,
-		                value:$value,
-		                textFromAudio:$text_from_audio,
-		                files:$files
-	                ){
-                        id
-		                category
-		                owner
-		                {
-			                username
-		                }
-                    }
-                }";
+            //string Query = @"
+            //        mutation(
+	           //         $datetime: DateTime, 
+	           //         $category:CategoryTypes,
+	           //         $source_device: String!,
+	           //         $value: Float,
+	           //         $text_from_audio: String,
+	           //         $files: Upload
+            //        ) {
+            //        createDatapoint(
+		          //      datetime:$datetime, 
+		          //      category: $category,
+		          //      sourceDevice:$source_device,
+		          //      value:$value,
+		          //      textFromAudio:$text_from_audio,
+		          //      files:$files
+	           //     ){
+            //            datapoint
+            //            {
+            //                id
+		          //          category
+		          //          owner
+		          //          {
+			         //           username
+		          //          }
+            //            }
+            //        }
+            //    }";
 
-            Query = "mutation testmutation($datetime:DateTime, $category:CategoryTypes, $source_device:String!, $value:Float, $text_from_audio:String, $files:Upload!) {createDatapoint(datetime:$datetime, category:$category, sourceDevice:$source_device, value:$value, textFromAudio:$text_from_audio, files:$files){ id datetime category sourceDevice textFromAudio }}";
+            var Query = "mutation testmutation($datetime:DateTime, $category:CategoryTypes, $source_device:String!, $value:Float, $text_from_audio:String, $files:Upload!) {createDatapoint(datetime:$datetime, category:$category, sourceDevice:$source_device, value:$value, textFromAudio:$text_from_audio, files:$files){ datapoint{ id datetime category sourceDevice textFromAudio }}}";
 
-            string jsonString = await upload2FilesGenericAsync(Query, variables, filepath1, filepath2);
+            string jsonString = await uploadFileGenericAsync(Query, variables, filepath);
 
             if (jsonString.Contains("errors"))
             {
@@ -387,16 +390,25 @@ namespace PersonalDataApp.Services
 
             //newlist.ForEach(x => json = json.Replace(x, x.ToUnderscoreCase()));
 
+            string replaceString = "}";
+            if(add_files == 1 )
+            {
+                replaceString = ",\"files\": null }";
+            }
+            else if(add_files == 2)
+            {
+                replaceString = ",\"files\": [null, null] }";
+            }
 
             json = "\"variables\": " + json;
-            return json.Replace("}", ",\"files\": [null, null] }");
+            return json.Replace("}", replaceString);
         }
 
         private static Datapoint DeserializeDatapoint(string jsonString)
         {
             dynamic dDatapoint = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonString);
 
-            var ddp = dDatapoint.data.createDatapoint;
+            var ddp = dDatapoint.data.createDatapoint.datapoint;
 
             Datapoint datapoint = new Datapoint()
             {
@@ -407,6 +419,24 @@ namespace PersonalDataApp.Services
             };
 
             return datapoint;
+        }
+
+
+        private async Task<string> uploadFileGenericAsync(string query, string variables, string filepath = "")
+        {
+            string filename = Path.GetFileName(filepath);
+
+
+            Dictionary<string, Object> postParameters = new Dictionary<string, object>
+            {
+                {"operations" , "{ \"query\": \"" + query + "\"," + variables + "}"},
+                {"map", "{\"0\":[\"variables.files\"]}" },
+                { "0", filepath != null ? new FileParameter(File.ReadAllBytes(filepath), filename) : null },
+          };
+
+            var response = await MultipartFormDataPostAsync(url, userAgent, postParameters);
+
+            return response.ToString();
         }
 
         private async Task<string> upload2FilesGenericAsync(string query, string variables, string filepath1 = "", string filepath2 = "")

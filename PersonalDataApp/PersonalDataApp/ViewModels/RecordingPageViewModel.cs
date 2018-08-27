@@ -234,15 +234,12 @@ namespace PersonalDataApp.ViewModels
                 }
 
                 BooleanSwitch = true;
-                var respObj = await GQLhandler.UploadDatapointAsync(obj, filepath2: filepath);
+                var respObj = await GQLhandler.UploadDatapointAsync(obj, filepath: filepath);
 
                 BooleanSwitch = false;
 
                 if (respObj == null)
                 {
-                    //try again, so much the file that is the problem, what is wrong?
-                    respObj = await GQLhandler.UploadDatapointAsync(obj, filepath2: null);
-
                     if (File.Exists(filepath))
                     {
                         var bytes = File.ReadAllBytes(filepath);
