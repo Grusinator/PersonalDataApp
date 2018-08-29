@@ -32,8 +32,8 @@ namespace PersonalDataApp.ViewModels
         public async void OnAuthenticationCompleted(GoogleOAuthToken token)
         {
             // Retrieve the user's email address
-            var googleService = new GoogleService();
-            var email = await googleService.GetEmailAsync(token.TokenType, token.AccessToken);
+            // var googleService = new GoogleService();
+            //var email = await googleService.GetEmailAsync(token.TokenType, token.AccessToken);
 
 
             NavigateToSignup();
