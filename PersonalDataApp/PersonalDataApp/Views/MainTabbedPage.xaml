@@ -39,5 +39,16 @@
                 <views:ProfilePage />
             </x:Arguments>
         </NavigationPage>
+
+        <NavigationPage Title="providers">
+            <NavigationPage.Icon>
+                <OnPlatform x:TypeArguments="FileImageSource">
+                    <On Platform="iOS" Value="tab_about.png"/>
+                </OnPlatform>
+            </NavigationPage.Icon>
+            <x:Arguments>
+                <views:ThirdPartyDataProvidersPage />
+            </x:Arguments>
+        </NavigationPage>
     </TabbedPage.Children>
 </TabbedPage>

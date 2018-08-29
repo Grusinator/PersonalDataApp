@@ -47,6 +47,7 @@ namespace PersonalDataApp
 
             containerRegistry.RegisterForNavigation<UpdateProfilePage>();
             containerRegistry.RegisterForNavigation<DatapointDetailPage>();
+            containerRegistry.RegisterForNavigation<ThirdPartyDataProvidersPage>();
         }
     }
 }
