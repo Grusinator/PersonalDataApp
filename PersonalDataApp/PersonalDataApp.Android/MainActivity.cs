@@ -2,16 +2,23 @@
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
+using PersonalDataApp.Authentication;
+using PersonalDataApp.Services;
 using Plugin.CurrentActivity;
 using Plugin.Permissions;
 using Prism;
 using Prism.Ioc;
+using System;
 
 namespace PersonalDataApp.Droid
 {
     [Activity(Label = "PersonalDataApp", Icon = "@mipmap/ic_launcher", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
+
+        // Need to be static because we need to access it in GoogleAuthInterceptor for continuation
+        public static GoogleAuthenticator Auth;
+
         protected override void OnCreate(Bundle bundle)
         {
             TabLayoutResource = Resource.Layout.Tabbar;
@@ -21,7 +28,15 @@ namespace PersonalDataApp.Droid
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
 
+
+
             App.CreateAudioRecorder = () => new AudioRecorder();
+
+            Auth = new GoogleAuthenticator(Configuration.ClientId, Configuration.Scope, Configuration.RedirectUrl);
+
+            
+            App.CreateIntentHandler = () => new IntentHandler(this, Auth);
+
             // used for Plugin.Permissions 
             CrossCurrentActivity.Current.Activity = this;
 

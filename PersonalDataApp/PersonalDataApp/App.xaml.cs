@@ -24,6 +24,8 @@ namespace PersonalDataApp
 
         public static Func<IAudioRecorder> CreateAudioRecorder { get; set; }
 
+        public static Func<IIntentHandler> CreateIntentHandler { get; set; }
+
         protected override async void OnInitialized()
         {
             InitializeComponent();

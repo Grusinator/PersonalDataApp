@@ -27,7 +27,7 @@ namespace PersonalDataApp.ViewModels
             Permission.Microphone
         };
 
-        public IAudioRecorder recorder { get; set; }
+        public IAudioRecorder Recorder { get; set; }
 
         public ICommand OpenWebCommand { get; }
         public ICommand TestCommand { get; }
@@ -121,10 +121,10 @@ namespace PersonalDataApp.ViewModels
         {
             Title = "Recording";
 
-            recorder = App.CreateAudioRecorder();
+            Recorder = App.CreateAudioRecorder();
 
-            recorder.RecordStatusChanged += UpdateRecordStatus;
-            recorder.AudioReadyForUpload += UploadAudioData;
+            Recorder.RecordStatusChanged += UpdateRecordStatus;
+            Recorder.AudioReadyForUpload += UploadAudioData;
 
             //StartUploadScheduler();
 
@@ -151,7 +151,7 @@ namespace PersonalDataApp.ViewModels
 
         private void UpdateThreshold(double value)
         {
-            recorder.ThresholdValue = value;
+            Recorder.ThresholdValue = value;
         }
 
         private void UploadAudioData(object sender, AudioRecorderGeneric.AudioUploadEventArgs e)
@@ -180,7 +180,7 @@ namespace PersonalDataApp.ViewModels
         {
             base.OnNavigatedTo(parameters);
             
-            recorder.ThresholdValue = User.AudioThreshold;
+            Recorder.ThresholdValue = User.AudioThreshold;
         }
 
         private void StartUploadScheduler()
@@ -204,7 +204,7 @@ namespace PersonalDataApp.ViewModels
         {
             var donelist = new List<Tuple<DateTime, String>>();
 
-            foreach (var elm in recorder.AudioFileQueue)
+            foreach (var elm in Recorder.AudioFileQueue)
             {
                 var datapoint = await UploadAudioDataPointAsync(elm.Item1, elm.Item2);
                 if (datapoint.TextFromAudio != null)
@@ -212,7 +212,7 @@ namespace PersonalDataApp.ViewModels
                     donelist.Add(elm);
                 }
             }
-            donelist.ForEach(el => recorder.AudioFileQueue.Remove(el));
+            donelist.ForEach(el => Recorder.AudioFileQueue.Remove(el));
         }
 
         private async Task<Datapoint> UploadAudioDataPointAsync(DateTime datetime, string filepath)
@@ -268,28 +268,28 @@ namespace PersonalDataApp.ViewModels
         private void StartRecordingContinously()
         {
             UpdateGuiRecording();
-            recorder.StartRecordingContinously();
+            Recorder.StartRecordingContinously();
         }
 
         private void StartRecording()
         {
             UpdateGuiRecording();
-            recorder.StartRecording();
+            Recorder.StartRecording();
         }
         private void StopRecording()
         {
             UpdateGuiReadyForRecordingOrPlayback();
-            recorder.StopRecording();
+            Recorder.StopRecording();
         }
         private void StartPlayback()
         {
             UpdateGuiPlayback();
-            recorder.StartPlaying();
+            Recorder.StartPlaying();
         }
         private void StopPlayback()
         {
             UpdateGuiReadyForRecordingOrPlayback();
-            recorder.StopPlaying();
+            Recorder.StopPlaying();
         }
 
         private void UpdateGuiReadyForRecording()

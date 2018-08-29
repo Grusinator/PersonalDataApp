@@ -12,6 +12,7 @@
 
             <Button Text="Login" Command="{Binding LoginCommand}" TextColor="White" />
             <Button Text="Signup" Command="{Binding SignupCommand}" TextColor="White" />
+            <Button Text="Google Auth" Command="{Binding GoogleAuthCommand}" TextColor="White" />
             
         </StackLayout>
     </ContentPage.Content>
