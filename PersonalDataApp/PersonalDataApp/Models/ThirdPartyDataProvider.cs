@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace PersonalDataApp.Models
@@ -15,9 +16,9 @@ namespace PersonalDataApp.Models
         public string Scope { get; set; }
         public string RedirectUrl { get; set; }
 
-        public static List<ThirdPartyDataProvider> InitDummyData()
+        public static ObservableCollection<ThirdPartyDataProvider> InitDummyData()
         {
-            return new List<ThirdPartyDataProvider>
+            return new ObservableCollection<ThirdPartyDataProvider>
             {
                 new ThirdPartyDataProvider()
                 {

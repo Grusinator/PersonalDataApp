@@ -5,13 +5,16 @@ using Prism.Mvvm;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PersonalDataApp.ViewModels
 {
 	public class ThirdPartyDataProvidersPageViewModel : ViewModelBase
     {
-        public List<ThirdPartyDataProvider> ThirdPartyDataProviders = ThirdPartyDataProvider.InitDummyData();
+        public ObservableCollection<ThirdPartyDataProvider> ThirdPartyDataProviders
+            { get; set; } = ThirdPartyDataProvider.InitDummyData();
 
         public DelegateCommand LoadThirdPartyDataProvidersCommand => new DelegateCommand(LoadThirdPartyDataProviders);
         public DelegateCommand<ThirdPartyDataProvider> ItemSelectedCommand 
@@ -25,11 +28,15 @@ namespace PersonalDataApp.ViewModels
 
         async void LoadThirdPartyDataProviders()
         {
+            IsBusy = true;
+            await Task.Delay(2000);
             ThirdPartyDataProviders = ThirdPartyDataProvider.InitDummyData();
+            IsBusy = false;
         }
 
         async void OnItemSelected(ThirdPartyDataProvider thirdPartyDataProvider)
         {
+            await Task.Delay(2000);
             ;
         }
     }
