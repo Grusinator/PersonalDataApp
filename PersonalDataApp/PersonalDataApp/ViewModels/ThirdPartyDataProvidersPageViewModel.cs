@@ -9,15 +9,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace PersonalDataApp.ViewModels
 {
 	public class ThirdPartyDataProvidersPageViewModel : ViewModelBase
     {
+
         public ObservableCollection<ThirdPartyDataProvider> ThirdPartyDataProviders
             { get; set; } = ThirdPartyDataProvider.InitDummyData();
 
         public DelegateCommand LoadThirdPartyDataProvidersCommand => new DelegateCommand(LoadThirdPartyDataProviders);
-        public DelegateCommand<ThirdPartyDataProvider> ItemSelectedCommand 
+        public DelegateCommand<ThirdPartyDataProvider> SelectDataProviderCommand
             => new DelegateCommand<ThirdPartyDataProvider>(OnItemSelected);
 
         public ThirdPartyDataProvidersPageViewModel(INavigationService navigationService, IEventAggregator eventAggregator)
@@ -36,8 +38,11 @@ namespace PersonalDataApp.ViewModels
 
         async void OnItemSelected(ThirdPartyDataProvider thirdPartyDataProvider)
         {
-            await Task.Delay(2000);
-            ;
+            var p = new NavigationParameters() {
+                { "thirdPartyDataProvider", thirdPartyDataProvider },
+                { "user", User } 
+        };
+            await NavigationService.NavigateAsync("ManageDataProviderPage", p);
         }
     }
 }

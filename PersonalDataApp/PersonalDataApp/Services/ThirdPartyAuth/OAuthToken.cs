@@ -1,6 +1,6 @@
-﻿namespace PersonalDataApp.Authentication
+﻿namespace PersonalDataApp.Services.Authorization
 {
-    public class GoogleOAuthToken
+    public class OAuthToken
     {
         public string TokenType { get; set; }
         public string AccessToken { get; set; }

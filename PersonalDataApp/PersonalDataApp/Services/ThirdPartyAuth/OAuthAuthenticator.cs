@@ -1,31 +1,30 @@
 ﻿using System;
 using Xamarin.Auth;
-using PersonalDataApp.Services.Authorization;
+using PersonalDataApp.Models;
+using PersonalDataApp.Authentication;
 
-namespace PersonalDataApp.Authentication
+namespace PersonalDataApp.Services.Authorization
 {
-    public class GoogleAuthenticator : IThirdPartyDataProviderAuthenticator
+    public class OAuthAuthenticator : IThirdPartyDataProviderAuthenticator
     {
-        //private const string AuthorizeUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-        //private const string AccessTokenUrl = "https://www.googleapis.com/oauth2/v4/token";
-        //private const string ClientSecret = string.Empty;
-
-        //nokia
-        private const string AuthorizeUrl = "https://account.health.nokia.com/oauth2_user/authorize2";
-        private const string AccessTokenUrl = "https://account.health.nokia.com/oauth2/token";
-
         private const bool IsUsingNativeUI = false;
 
         private OAuth2Authenticator _auth;
         private IAuthenticationDelegate _authenticationDelegate;
+        private ThirdPartyDataProvider _dataProvider;
 
-        public GoogleAuthenticator(string clientId, string scope, string redirectUrl)
+        public OAuthAuthenticator(ThirdPartyDataProvider dataProvider)
         {
-            _auth = new OAuth2Authenticator(clientId, Configuration.ClientSecret, scope,
-                                            new Uri(Configuration.AuthorizeUrl),
-                                            new Uri(Configuration.RedirectUrl),
-                                            new Uri(Configuration.AccessTokenUrl),
-                                            null, IsUsingNativeUI);
+            _dataProvider = dataProvider;
+
+            _auth = new OAuth2Authenticator(
+                _dataProvider.ClientID, 
+                _dataProvider.ClientSecret,
+                _dataProvider.Scope,
+                new Uri(_dataProvider.AuthorizeUrl),
+                new Uri(_dataProvider.RedirectUrl),
+                new Uri(_dataProvider.AccessTokenUrl),
+                null, IsUsingNativeUI);
 
             _auth.Completed += OnAuthenticationCompleted;
             _auth.Error += OnAuthenticationFailed;

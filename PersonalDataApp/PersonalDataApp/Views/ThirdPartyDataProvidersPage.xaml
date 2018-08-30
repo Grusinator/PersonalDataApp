@@ -18,7 +18,7 @@
                 CachingStrategy="RecycleElement">
                 <ListView.Behaviors>
                     <b:EventToCommandBehavior EventName="ItemTapped" 
-                                          Command="{Binding SelectDatapointCommand}"
+                                          Command="{Binding SelectDataProviderCommand}"
                                           EventArgsConverter="{converters:ItemTappedEventArgsConverter}" />
                 </ListView.Behaviors>
                 <ListView.ItemTemplate>

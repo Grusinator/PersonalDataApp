@@ -1,5 +1,6 @@
 ﻿using PersonalDataApp.Authentication;
 using PersonalDataApp.Services;
+using PersonalDataApp.Services.Authorization;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -13,7 +14,7 @@ using Xamarin.Forms;
 
 namespace PersonalDataApp.ViewModels
 {
-	public class StartPageViewModel : ViewModelBase, IGoogleAuthenticationDelegate
+	public class StartPageViewModel : ViewModelBase, IAuthenticationDelegate
 	{
         public StartPageViewModel(INavigationService navigationService, IEventAggregator eventAggregator)
             : base(navigationService, eventAggregator)
@@ -29,7 +30,7 @@ namespace PersonalDataApp.ViewModels
 
 
 
-        public async void OnAuthenticationCompleted(GoogleOAuthToken token)
+        public async void OnAuthenticationCompleted(OAuthToken token)
         {
             // Retrieve the user's email address
             // var googleService = new GoogleService();
@@ -53,7 +54,7 @@ namespace PersonalDataApp.ViewModels
         {
             IntentHandler = App.CreateIntentHandler();
 
-            IntentHandler.Auth.SetGoogleAuthDelegate(this);
+            IntentHandler.Auth.SetAuthDelegate(this);
 
             IntentHandler.StartIntent(IntentHandler.Auth);
         }

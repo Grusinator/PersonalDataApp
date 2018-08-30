@@ -84,6 +84,54 @@ namespace PersonalDataApp.Services
             return null;
         }
 
+
+
+        public async Task<String> CreateThirdPartyProvider(ThirdPartyDataProvider dataProvider, string profileJsonField = null)
+        {
+            var createThirdPartyProfileRequest = new GraphQLRequest
+            {
+                Query = @"
+                mutation thirdpartycreatemutation($provider: String!, $access_token: String!, $profile_json_field: String!) {
+                  createThirdPartyProfile(provider: $provider, accessToken: $access_token, profileJsonField: $profile_json_field) {
+                    thirdPartyProfile {
+                      provider
+                      accessToken
+                      profileJsonField
+                      profile {
+                        user {
+                          firstName
+                        }
+                      }
+                    }
+                  }
+                }",
+                OperationName = "thirdpartycreatemutation",
+                Variables = new
+                {
+                    provider = dataProvider.ProviderName,
+                    access_token = dataProvider.AccessToken.AccessToken,
+                    profile_json_field = profileJsonField,
+                }
+            };
+            try
+            {
+                var graphQLResponse = await graphQLClient.PostAsync(createThirdPartyProfileRequest);
+
+                if (graphQLResponse.Errors != null)
+                {
+                    throw new HttpRequestException(graphQLResponse.Errors[0].Message);
+                }
+
+                return graphQLResponse.Data.createThirdPartyProfile.thirdPartyProfile.provider.Value;
+            }
+            catch (HttpRequestException e)
+            {
+                throw e;
+            }
+
+
+        }
+
         public async Task<String> Login(string username, string password)
         {
             var loginRequest = new GraphQLRequest

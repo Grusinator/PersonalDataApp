@@ -29,7 +29,7 @@ namespace PersonalDataApp.Droid
             global::Xamarin.Forms.Forms.Init(this, bundle);
 
 
-
+            //Android specific implementations of interfaces being connected
             App.CreateAudioRecorder = () => new AudioRecorder();
 
             Auth = new GoogleAuthenticator(Configuration.ClientId, Configuration.Scope, Configuration.RedirectUrl);

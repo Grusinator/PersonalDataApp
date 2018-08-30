@@ -1,10 +1,11 @@
 ﻿using System;
+using PersonalDataApp.Services.Authorization;
 
 namespace PersonalDataApp.Authentication
 {
-    public interface IGoogleAuthenticationDelegate
+    public interface IAuthenticationDelegate
     {
-        void OnAuthenticationCompleted(GoogleOAuthToken token);
+        void OnAuthenticationCompleted(OAuthToken token);
         void OnAuthenticationFailed(string message, Exception exception);
         void OnAuthenticationCanceled();
     }

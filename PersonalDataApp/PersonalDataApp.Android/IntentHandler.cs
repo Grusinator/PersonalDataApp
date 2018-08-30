@@ -19,21 +19,19 @@ namespace PersonalDataApp.Droid
     {
 
         MainActivity MainActivity { get; set; }
-        public GoogleAuthenticator Auth { get; set; }
+        public IThirdPartyDataProviderAuthenticator Auth { get; set; }
         Intent Intent { get; set;  }
 
-        public event EventHandler<EventArgs> AuthenticationSuccessfull;
-
-        public IntentHandler(MainActivity mainActivity, GoogleAuthenticator auth)
+        public IntentHandler(MainActivity mainActivity, IThirdPartyDataProviderAuthenticator auth)
         {
             MainActivity = mainActivity;
             Auth = auth;
         }
 
-        public void StartIntent(GoogleAuthenticator Auth)
+        public void StartIntent(IThirdPartyDataProviderAuthenticator auth)
         {
             // Display the activity handling the authentication
-            var authenticator = Auth.GetAuthenticator();
+            var authenticator = auth.GetAuthenticator();
             Intent = authenticator.GetUI(MainActivity);
             MainActivity.StartActivity(Intent);
         }
