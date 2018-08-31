@@ -35,6 +35,17 @@ namespace PersonalDataApp.Models
                     Scope = "",
                     RedirectUrl = ""
                 },
+                new ThirdPartyDataProvider()
+                {
+                    ProviderName = "Endomondo",
+                    AuthorizeUrl = "https://www.endomondo.com/oauth/authorize",
+                    AccessTokenUrl = "https://api.endomondo.com/oauth/access_token",
+                    ProfileRequestUrl = "https://api.endomondo.com/api/1/user",
+                    ClientID = "",
+                    ClientSecret = "",
+                    Scope = "",
+                    RedirectUrl = ""
+                },
             new ThirdPartyDataProvider()
                 {
                     ProviderName = "Nokia",

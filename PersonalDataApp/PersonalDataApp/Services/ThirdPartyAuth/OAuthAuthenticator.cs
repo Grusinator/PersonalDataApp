@@ -18,13 +18,14 @@ namespace PersonalDataApp.Services.Authorization
             _dataProvider = dataProvider;
 
             _auth = new OAuth2Authenticator(
-                _dataProvider.ClientID, 
+                _dataProvider.ClientID,
                 _dataProvider.ClientSecret,
                 _dataProvider.Scope,
                 new Uri(_dataProvider.AuthorizeUrl),
                 new Uri(_dataProvider.RedirectUrl),
                 new Uri(_dataProvider.AccessTokenUrl),
                 null, IsUsingNativeUI);
+
 
             _auth.Completed += OnAuthenticationCompleted;
             _auth.Error += OnAuthenticationFailed;
